@@ -10,6 +10,8 @@ import { config } from './config.js';
 import { HttpError } from './errors.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 import { readOnlyDemo } from './middleware/readOnlyDemo.js';
+import categoriesRouter from './routes/categories.js';
+import recipesRouter from './routes/recipes.js';
 
 const app = express();
 
@@ -56,6 +58,9 @@ app.get('/api/health', (req, res) => {
     data: { status: 'ok', readOnly: config.readOnlyDemo },
   });
 });
+
+app.use('/api/categories', categoriesRouter);
+app.use('/api/recipes', recipesRouter);
 
 app.use(notFound);
 app.use(errorHandler);
