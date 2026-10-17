@@ -1,0 +1,21 @@
+# Dependencias
+node_modules/
+
+# Variables de entorno: nunca subir secretos
+.env
+.env.*
+!.env.example
+
+# Compilacion y cache de Angular
+dist/
+out-tsc/
+.angular/
+coverage/
+
+# Registros
+*.log
+npm-debug.log*
+
+# Archivos del sistema
+Thumbs.db
+desktop.ini
