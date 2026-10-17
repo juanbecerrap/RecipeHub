@@ -275,4 +275,18 @@ router.put('/:id', async (req, res) => {
   res.json({ ok: true, data: recipe });
 });
 
+// DELETE /api/recipes/:id
+router.delete('/:id', async (req, res) => {
+  const id = parseId(req.params.id, 'id');
+
+  // Las lineas de recipe_ingredients se eliminan solas (ON DELETE CASCADE)
+  const [result] = await pool.execute('DELETE FROM recipes WHERE id = ?', [id]);
+
+  if (result.affectedRows === 0) {
+    throw new HttpError(404, 'Receta no encontrada');
+  }
+
+  res.status(204).end();
+});
+
 export default router;
