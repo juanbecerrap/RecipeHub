@@ -15,6 +15,11 @@ import recipesRouter from './routes/recipes.js';
 
 const app = express();
 
+const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+
+const tooManyRequests = (req, res, next) =>
+  next(new HttpError(429, 'Demasiadas peticiones. Intentalo de nuevo mas tarde'));
+
 // Cabeceras de seguridad basicas
 app.use(helmet());
 
@@ -33,7 +38,7 @@ app.use(
   })
 );
 
-// Limite de peticiones por IP
+// Limite general de peticiones por IP
 app.use(
   '/api',
   rateLimit({
@@ -41,13 +46,25 @@ app.use(
     limit: config.rateLimit.max,
     standardHeaders: 'draft-7',
     legacyHeaders: false,
-    handler: (req, res, next) =>
-      next(new HttpError(429, 'Demasiadas peticiones. Intentalo de nuevo mas tarde')),
+    handler: tooManyRequests,
   })
 );
 
 // Demo publica: bloquea escrituras antes de leer el cuerpo
 app.use('/api', readOnlyDemo);
+
+// Limite mas estricto para escrituras (POST, PUT y DELETE)
+app.use(
+  '/api',
+  rateLimit({
+    windowMs: config.rateLimit.windowMs,
+    limit: config.rateLimit.writeMax,
+    skip: (req) => SAFE_METHODS.has(req.method),
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
+    handler: tooManyRequests,
+  })
+);
 
 // Tamano maximo del cuerpo JSON
 app.use(express.json({ limit: '50kb' }));

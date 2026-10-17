@@ -72,5 +72,6 @@ export const config = Object.freeze({
   rateLimit: Object.freeze({
     windowMs: toInt('RATE_LIMIT_WINDOW_MS', 900000),
     max: toInt('RATE_LIMIT_MAX', 100),
+    writeMax: toInt('WRITE_RATE_LIMIT_MAX', 20),
   }),
 });
