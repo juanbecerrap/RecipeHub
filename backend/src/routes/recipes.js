@@ -4,10 +4,10 @@ import { Router } from 'express';
 import { pool } from '../db.js';
 import { HttpError } from '../errors.js';
 import { parseId } from '../validators.js';
+import { DIFFICULTIES, validateRecipeInput } from '../recipeValidator.js';
 
 const router = Router();
 
-const DIFFICULTIES = ['easy', 'medium', 'hard'];
 const MAX_SEARCH_LENGTH = 100;
 
 // Columnas comunes del listado y del detalle (fragmento fijo, sin datos del usuario)
@@ -48,6 +48,59 @@ const toSteps = (text) =>
     .split(/\r?\n/)
     .map((step) => step.trim())
     .filter(Boolean);
+
+// Devuelve la receta completa o null. Acepta el pool o una conexion.
+const findRecipeById = async (executor, id) => {
+  const [recipes] = await executor.execute(
+    `SELECT ${SUMMARY_COLUMNS},
+            r.instructions,
+            r.created_at AS createdAt,
+            r.updated_at AS updatedAt
+     FROM recipes AS r
+     JOIN categories AS c ON c.id = r.category_id
+     WHERE r.id = ?`,
+    [id]
+  );
+
+  if (recipes.length === 0) {
+    return null;
+  }
+
+  const [ingredients] = await executor.execute(
+    `SELECT i.id, i.name, ri.quantity, ri.unit
+     FROM recipe_ingredients AS ri
+     JOIN ingredients AS i ON i.id = ri.ingredient_id
+     WHERE ri.recipe_id = ?
+     ORDER BY i.name`,
+    [id]
+  );
+
+  const row = recipes[0];
+  return {
+    ...toRecipeSummary(row),
+    instructions: toSteps(row.instructions),
+    ingredients,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
+};
+
+// Guarda los ingredientes de una receta dentro de una transaccion ya abierta.
+const saveIngredients = async (connection, recipeId, ingredients) => {
+  for (const item of ingredients) {
+    // Si el nombre ya existe (sin distinguir mayusculas ni tildes) se reutiliza su id
+    const [result] = await connection.execute(
+      `INSERT INTO ingredients (name) VALUES (?)
+       ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)`,
+      [item.name]
+    );
+    await connection.execute(
+      `INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity, unit)
+       VALUES (?, ?, ?, ?)`,
+      [recipeId, result.insertId, item.quantity, item.unit]
+    );
+  }
+};
 
 // GET /api/recipes?search=&category=&difficulty=
 router.get('/', async (req, res) => {
@@ -104,42 +157,74 @@ router.get('/', async (req, res) => {
 // GET /api/recipes/:id
 router.get('/:id', async (req, res) => {
   const id = parseId(req.params.id, 'id');
+  const recipe = await findRecipeById(pool, id);
 
-  const [recipes] = await pool.execute(
-    `SELECT ${SUMMARY_COLUMNS},
-            r.instructions,
-            r.created_at AS createdAt,
-            r.updated_at AS updatedAt
-     FROM recipes AS r
-     JOIN categories AS c ON c.id = r.category_id
-     WHERE r.id = ?`,
-    [id]
-  );
-
-  if (recipes.length === 0) {
+  if (!recipe) {
     throw new HttpError(404, 'Receta no encontrada');
   }
 
-  const [ingredients] = await pool.execute(
-    `SELECT i.id, i.name, ri.quantity, ri.unit
-     FROM recipe_ingredients AS ri
-     JOIN ingredients AS i ON i.id = ri.ingredient_id
-     WHERE ri.recipe_id = ?
-     ORDER BY i.name`,
-    [id]
-  );
+  res.json({ ok: true, data: recipe });
+});
 
-  const row = recipes[0];
-  res.json({
-    ok: true,
-    data: {
-      ...toRecipeSummary(row),
-      instructions: toSteps(row.instructions),
-      ingredients,
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
-    },
-  });
+// POST /api/recipes
+router.post('/', async (req, res) => {
+  const data = validateRecipeInput(req.body);
+
+  const connection = await pool.getConnection();
+  let recipeId;
+
+  try {
+    await connection.beginTransaction();
+
+    const [categories] = await connection.execute(
+      'SELECT id FROM categories WHERE id = ?',
+      [data.categoryId]
+    );
+    if (categories.length === 0) {
+      throw new HttpError(422, 'Los datos de la receta no son validos', [
+        { field: 'categoryId', message: 'La categoria no existe' },
+      ]);
+    }
+
+    const [result] = await connection.execute(
+      `INSERT INTO recipes
+         (title, description, image_path, preparation_time, difficulty,
+          servings, instructions, category_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        data.title,
+        data.description,
+        data.imagePath,
+        data.preparationTime,
+        data.difficulty,
+        data.servings,
+        data.instructions.join('\n'),
+        data.categoryId,
+      ]
+    );
+    recipeId = result.insertId;
+
+    await saveIngredients(connection, recipeId, data.ingredients);
+
+    await connection.commit();
+  } catch (error) {
+    try {
+      await connection.rollback();
+    } catch {
+      // la conexion puede haberse perdido; se libera igualmente
+    }
+    if (error.code === 'ER_DUP_ENTRY') {
+      throw new HttpError(422, 'Los datos de la receta no son validos', [
+        { field: 'ingredients', message: 'Hay ingredientes repetidos en la receta' },
+      ]);
+    }
+    throw error;
+  } finally {
+    connection.release();
+  }
+
+  const recipe = await findRecipeById(pool, recipeId);
+  res.status(201).location(`/api/recipes/${recipeId}`).json({ ok: true, data: recipe });
 });
 
 export default router;

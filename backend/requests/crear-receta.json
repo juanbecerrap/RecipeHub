@@ -1,0 +1,20 @@
+{
+  "title": "Tostadas de aguacate",
+  "description": "Desayuno rapido con aguacate machacado sobre pan tostado, sal y un chorrito de aceite de oliva.",
+  "imagePath": "tostadas-aguacate.jpg",
+  "preparationTime": 10,
+  "difficulty": "easy",
+  "servings": 2,
+  "categoryId": 1,
+  "instructions": [
+    "Tuesta las rebanadas de pan.",
+    "Aplasta el aguacate con la sal y el aceite de oliva.",
+    "Unta el aguacate sobre el pan y sirve enseguida."
+  ],
+  "ingredients": [
+    { "name": "Pan de molde", "quantity": 4, "unit": "rebanadas" },
+    { "name": "aguacates", "quantity": 1, "unit": "" },
+    { "name": "SAL", "quantity": 1, "unit": "pizca" },
+    { "name": "Aceite de oliva", "quantity": 1, "unit": "cda" }
+  ]
+}
