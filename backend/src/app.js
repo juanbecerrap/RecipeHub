@@ -7,6 +7,7 @@ import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 
 import { config } from './config.js';
+import { checkDatabase } from './db.js';
 import { HttpError } from './errors.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 import { readOnlyDemo } from './middleware/readOnlyDemo.js';
@@ -69,10 +70,19 @@ app.use(
 // Tamano maximo del cuerpo JSON
 app.use(express.json({ limit: '50kb' }));
 
-app.get('/api/health', (req, res) => {
+// Estado del servicio y de la base de datos
+app.get('/api/health', async (req, res) => {
+  try {
+    await checkDatabase();
+  } catch (error) {
+    // Solo el codigo del error, nunca datos de la conexion
+    console.error('Comprobacion de salud: base de datos no disponible', error.code ?? '');
+    throw new HttpError(503, 'Base de datos no disponible');
+  }
+
   res.json({
     ok: true,
-    data: { status: 'ok', readOnly: config.readOnlyDemo },
+    data: { status: 'ok', database: 'ok', readOnly: config.readOnlyDemo },
   });
 });
 
