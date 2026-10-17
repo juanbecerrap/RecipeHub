@@ -49,6 +49,21 @@ const toSteps = (text) =>
     .map((step) => step.trim())
     .filter(Boolean);
 
+const invalidData = (details) =>
+  new HttpError(422, 'Los datos de la receta no son validos', details);
+
+// Valores de una receta en el orden de las columnas de INSERT y UPDATE
+const recipeValues = (data) => [
+  data.title,
+  data.description,
+  data.imagePath,
+  data.preparationTime,
+  data.difficulty,
+  data.servings,
+  data.instructions.join('\n'),
+  data.categoryId,
+];
+
 // Devuelve la receta completa o null. Acepta el pool o una conexion.
 const findRecipeById = async (executor, id) => {
   const [recipes] = await executor.execute(
@@ -85,6 +100,17 @@ const findRecipeById = async (executor, id) => {
   };
 };
 
+// Lanza un 422 si la categoria no existe.
+const assertCategoryExists = async (connection, categoryId) => {
+  const [categories] = await connection.execute(
+    'SELECT id FROM categories WHERE id = ?',
+    [categoryId]
+  );
+  if (categories.length === 0) {
+    throw invalidData([{ field: 'categoryId', message: 'La categoria no existe' }]);
+  }
+};
+
 // Guarda los ingredientes de una receta dentro de una transaccion ya abierta.
 const saveIngredients = async (connection, recipeId, ingredients) => {
   for (const item of ingredients) {
@@ -99,6 +125,31 @@ const saveIngredients = async (connection, recipeId, ingredients) => {
        VALUES (?, ?, ?, ?)`,
       [recipeId, result.insertId, item.quantity, item.unit]
     );
+  }
+};
+
+// Ejecuta `work` dentro de una transaccion: confirma si termina bien y deshace si falla.
+const withTransaction = async (work) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    const result = await work(connection);
+    await connection.commit();
+    return result;
+  } catch (error) {
+    try {
+      await connection.rollback();
+    } catch {
+      // la conexion puede haberse perdido; se libera igualmente
+    }
+    if (error.code === 'ER_DUP_ENTRY') {
+      throw invalidData([
+        { field: 'ingredients', message: 'Hay ingredientes repetidos en la receta' },
+      ]);
+    }
+    throw error;
+  } finally {
+    connection.release();
   }
 };
 
@@ -170,61 +221,58 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   const data = validateRecipeInput(req.body);
 
-  const connection = await pool.getConnection();
-  let recipeId;
-
-  try {
-    await connection.beginTransaction();
-
-    const [categories] = await connection.execute(
-      'SELECT id FROM categories WHERE id = ?',
-      [data.categoryId]
-    );
-    if (categories.length === 0) {
-      throw new HttpError(422, 'Los datos de la receta no son validos', [
-        { field: 'categoryId', message: 'La categoria no existe' },
-      ]);
-    }
+  const recipeId = await withTransaction(async (connection) => {
+    await assertCategoryExists(connection, data.categoryId);
 
     const [result] = await connection.execute(
       `INSERT INTO recipes
          (title, description, image_path, preparation_time, difficulty,
           servings, instructions, category_id)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        data.title,
-        data.description,
-        data.imagePath,
-        data.preparationTime,
-        data.difficulty,
-        data.servings,
-        data.instructions.join('\n'),
-        data.categoryId,
-      ]
+      recipeValues(data)
     );
-    recipeId = result.insertId;
 
-    await saveIngredients(connection, recipeId, data.ingredients);
-
-    await connection.commit();
-  } catch (error) {
-    try {
-      await connection.rollback();
-    } catch {
-      // la conexion puede haberse perdido; se libera igualmente
-    }
-    if (error.code === 'ER_DUP_ENTRY') {
-      throw new HttpError(422, 'Los datos de la receta no son validos', [
-        { field: 'ingredients', message: 'Hay ingredientes repetidos en la receta' },
-      ]);
-    }
-    throw error;
-  } finally {
-    connection.release();
-  }
+    await saveIngredients(connection, result.insertId, data.ingredients);
+    return result.insertId;
+  });
 
   const recipe = await findRecipeById(pool, recipeId);
   res.status(201).location(`/api/recipes/${recipeId}`).json({ ok: true, data: recipe });
+});
+
+// PUT /api/recipes/:id (reemplaza la receta completa)
+router.put('/:id', async (req, res) => {
+  const id = parseId(req.params.id, 'id');
+  const data = validateRecipeInput(req.body);
+
+  await withTransaction(async (connection) => {
+    // Bloquea la fila mientras dura la edicion
+    const [existing] = await connection.execute(
+      'SELECT id FROM recipes WHERE id = ? FOR UPDATE',
+      [id]
+    );
+    if (existing.length === 0) {
+      throw new HttpError(404, 'Receta no encontrada');
+    }
+
+    await assertCategoryExists(connection, data.categoryId);
+
+    await connection.execute(
+      `UPDATE recipes
+       SET title = ?, description = ?, image_path = ?, preparation_time = ?,
+           difficulty = ?, servings = ?, instructions = ?, category_id = ?,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = ?`,
+      [...recipeValues(data), id]
+    );
+
+    // Los ingredientes se reemplazan completos
+    await connection.execute('DELETE FROM recipe_ingredients WHERE recipe_id = ?', [id]);
+    await saveIngredients(connection, id, data.ingredients);
+  });
+
+  const recipe = await findRecipeById(pool, id);
+  res.json({ ok: true, data: recipe });
 });
 
 export default router;

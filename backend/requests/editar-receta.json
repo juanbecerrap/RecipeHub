@@ -1,0 +1,22 @@
+{
+  "title": "Tostadas de aguacate y tomate",
+  "description": "Desayuno rapido con aguacate machacado y tomate fresco sobre pan tostado.",
+  "imagePath": "tostadas-aguacate.jpg",
+  "preparationTime": 15,
+  "difficulty": "easy",
+  "servings": 2,
+  "categoryId": 1,
+  "instructions": [
+    "Tuesta las rebanadas de pan.",
+    "Corta el tomate en cubos pequenos.",
+    "Aplasta el aguacate con la sal y el aceite de oliva.",
+    "Unta el aguacate sobre el pan, coloca el tomate encima y sirve."
+  ],
+  "ingredients": [
+    { "name": "Pan de molde", "quantity": 4, "unit": "rebanadas" },
+    { "name": "Aguacates", "quantity": 1, "unit": "" },
+    { "name": "Tomates", "quantity": 1, "unit": "" },
+    { "name": "Sal", "quantity": 1, "unit": "pizca" },
+    { "name": "Aceite de oliva", "quantity": 1, "unit": "cda" }
+  ]
+}
