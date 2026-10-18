@@ -1,0 +1,35 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+main {
+  flex: 1;
+  padding-block: var(--space-7);
+}
+
+/* El foco llega aqui por codigo, no es un control interactivo */
+main:focus {
+  outline: none;
+}
+
+/* Enlace oculto hasta que recibe el foco con el teclado */
+.skip-link {
+  position: absolute;
+  top: -4rem;
+  left: var(--space-4);
+  z-index: 100;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-sage-700);
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: var(--space-3);
+  color: #ffffff;
+}

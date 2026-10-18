@@ -1,12 +1,13 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
+import { SiteFooter } from './layout/site-footer';
+import { SiteHeader } from './layout/site-header';
+
 @Component({
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, SiteHeader, SiteFooter],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',
 })
-export class App {
-  protected readonly title = signal('recipehub-frontend');
-}
+export class App {}
