@@ -24,11 +24,13 @@ describe('RecipeCard', () => {
     const fixture = TestBed.createComponent(RecipeCard);
     fixture.componentRef.setInput('recipe', summary);
     await fixture.whenStable();
-    return fixture.nativeElement as HTMLElement;
+    return { fixture, element: fixture.nativeElement as HTMLElement };
   };
 
   it('muestra el titulo, la categoria, el tiempo y la dificultad', async () => {
-    const text = (await create()).textContent ?? '';
+    const { element } = await create();
+    const text = element.textContent ?? '';
+
     expect(text).toContain('Pancakes esponjosos');
     expect(text).toContain('Desayunos');
     expect(text).toContain('20 min');
@@ -36,28 +38,24 @@ describe('RecipeCard', () => {
   });
 
   it('enlaza con el detalle de la receta', async () => {
-    const link = (await create()).querySelector('a.card__link');
-    expect(link?.getAttribute('href')).toBe('/recetas/7');
+    const { element } = await create();
+
+    expect(element.querySelector('a.card__link')?.getAttribute('href')).toBe('/recetas/7');
   });
 
-  it('carga la foto desde la carpeta de imagenes', async () => {
-    const image = (await create()).querySelector('img');
-    expect(image?.getAttribute('src')).toBe('images/pancakes.jpg');
+  it('carga la foto de la receta', async () => {
+    const { element } = await create();
+
+    expect(element.querySelector('img')?.getAttribute('src')).toBe('images/pancakes.jpg');
   });
 
-  it('muestra un marcador cuando la foto no carga', async () => {
-    const fixture = TestBed.configureTestingModule({
-      imports: [RecipeCard],
-      providers: [provideRouter([])],
-    }).createComponent(RecipeCard);
-    fixture.componentRef.setInput('recipe', summary);
-    await fixture.whenStable();
+  it('muestra el marcador cuando la foto no carga', async () => {
+    const { fixture, element } = await create();
 
-    const element = fixture.nativeElement as HTMLElement;
     element.querySelector('img')?.dispatchEvent(new Event('error'));
     await fixture.whenStable();
 
     expect(element.querySelector('img')).toBeNull();
-    expect(element.querySelector('svg.card__placeholder')).toBeTruthy();
+    expect(element.querySelector('svg.photo__placeholder')).toBeTruthy();
   });
 });
