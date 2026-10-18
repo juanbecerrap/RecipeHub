@@ -1,0 +1,119 @@
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.card__media {
+  aspect-ratio: 8 / 5;
+  overflow: hidden;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: var(--color-sage-100);
+}
+
+.card__image,
+.card__placeholder {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.card__image {
+  object-fit: cover;
+}
+
+.card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5) var(--space-5);
+}
+
+.card__title {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.card__link {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.card__link:hover {
+  color: var(--color-sage-700);
+  text-decoration: underline;
+}
+
+/* Toda la tarjeta funciona como un unico enlace */
+.card__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+}
+
+.card__link:focus-visible {
+  outline: none;
+}
+
+.card__link:focus-visible::after {
+  outline: 3px solid var(--color-sage-600);
+  outline-offset: 3px;
+}
+
+.card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: auto 0 0;
+  padding: 0;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  list-style: none;
+}
+
+.card__meta li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* Marcador cuando no hay foto */
+.ph-bg {
+  fill: var(--color-sage-100);
+}
+
+.ph-plate {
+  fill: #ffffff;
+  stroke: var(--color-border);
+  stroke-width: 3;
+}
+
+.ph-ring {
+  fill: none;
+  stroke: var(--color-border);
+  stroke-width: 2;
+}
+
+.ph-line {
+  fill: none;
+  stroke: var(--color-sage-600);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

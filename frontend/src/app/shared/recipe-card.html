@@ -1,0 +1,42 @@
+<article class="card">
+  <div class="card__media">
+    @if (imageFailed()) {
+      <svg class="card__placeholder" viewBox="0 0 320 200" aria-hidden="true" focusable="false">
+        <rect class="ph-bg" width="320" height="200" />
+        <circle class="ph-plate" cx="160" cy="100" r="62" />
+        <circle class="ph-ring" cx="160" cy="100" r="44" />
+        <path class="ph-line" d="M70 58v26c0 7 4 10 8 10s8-3 8-10V58M78 58v30M78 94v48" />
+        <path class="ph-line" d="M240 58c10 6 14 22 10 44h-10V58zM240 102v40" />
+      </svg>
+    } @else {
+      <img
+        class="card__image"
+        [src]="imageUrl()"
+        alt=""
+        width="640"
+        height="400"
+        loading="lazy"
+        (error)="imageFailed.set(true)"
+      />
+    }
+  </div>
+
+  <div class="card__body">
+    <span class="badge">{{ recipe().category.name }}</span>
+
+    <h2 class="card__title">
+      <a class="card__link" [routerLink]="['/recetas', recipe().id]">{{ recipe().title }}</a>
+    </h2>
+
+    <ul class="card__meta">
+      <li>
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+          <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" />
+          <path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+        <span class="visually-hidden">Tiempo de preparación: </span>{{ time() }}
+      </li>
+      <li><span class="visually-hidden">Dificultad: </span>{{ difficultyLabel() }}</li>
+    </ul>
+  </div>
+</article>

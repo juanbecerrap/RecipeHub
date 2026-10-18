@@ -1,0 +1,41 @@
+<section class="container">
+  <div class="catalog__header">
+    <h1>Recetas</h1>
+    <p class="catalog__intro">Explora la colección y encuentra tu próxima receta.</p>
+  </div>
+
+  <p class="catalog__status" role="status">{{ summary() }}</p>
+
+  @switch (status()) {
+    @case ('loading') {
+      <ul class="grid" role="list" aria-hidden="true">
+        @for (item of skeletons; track item) {
+          <li class="skeleton"></li>
+        }
+      </ul>
+    }
+
+    @case ('error') {
+      <div class="alert alert--error catalog__message" role="alert">
+        <h2>No pudimos cargar las recetas</h2>
+        <p>Comprueba tu conexión e inténtalo de nuevo.</p>
+        <button type="button" class="btn btn-primary" (click)="load()">Reintentar</button>
+      </div>
+    }
+
+    @case ('ready') {
+      @if (recipes().length === 0) {
+        <div class="catalog__message">
+          <h2>Todavía no hay recetas</h2>
+          <p>Cuando se añadan recetas, aparecerán aquí.</p>
+        </div>
+      } @else {
+        <ul class="grid" role="list">
+          @for (recipe of recipes(); track recipe.id) {
+            <li><app-recipe-card [recipe]="recipe" /></li>
+          }
+        </ul>
+      }
+    }
+  }
+</section>
