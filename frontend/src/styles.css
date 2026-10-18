@@ -224,6 +224,7 @@ svg {
   background: var(--color-surface);
   color: var(--color-text);
   font: inherit;
+  line-height: 1.25;
   transition:
     border-color 0.15s ease,
     box-shadow 0.15s ease;
