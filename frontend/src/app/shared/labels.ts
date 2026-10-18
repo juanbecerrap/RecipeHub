@@ -16,3 +16,13 @@ export const formatMinutes = (minutes: number): string => {
   }
   return rest === 0 ? `${hours} h` : `${hours} h ${rest} min`;
 };
+
+const quantityFormat = new Intl.NumberFormat('es', { maximumFractionDigits: 2 });
+
+// (200, 'g') -> "200 g", (2, '') -> "2", (250.5, 'ml') -> "250,5 ml"
+export const formatAmount = (quantity: number, unit: string): string =>
+  `${quantityFormat.format(quantity)} ${unit}`.trim();
+
+// 1 -> "1 porción", 4 -> "4 porciones"
+export const formatServings = (servings: number): string =>
+  servings === 1 ? '1 porción' : `${servings} porciones`;

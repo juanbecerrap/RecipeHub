@@ -1,4 +1,4 @@
-import { DIFFICULTY_LABELS, formatMinutes } from './labels';
+import { DIFFICULTY_LABELS, formatAmount, formatMinutes, formatServings } from './labels';
 
 describe('formatMinutes', () => {
   it('muestra solo minutos por debajo de una hora', () => {
@@ -19,5 +19,24 @@ describe('formatMinutes', () => {
 describe('DIFFICULTY_LABELS', () => {
   it('traduce los niveles de dificultad', () => {
     expect(DIFFICULTY_LABELS).toEqual({ easy: 'Fácil', medium: 'Media', hard: 'Difícil' });
+  });
+});
+
+describe('formatAmount', () => {
+  it('une la cantidad con la unidad y usa coma decimal', () => {
+    expect(formatAmount(200, 'g')).toBe('200 g');
+    expect(formatAmount(250.5, 'ml')).toBe('250,5 ml');
+    expect(formatAmount(0.25, '')).toBe('0,25');
+  });
+
+  it('no deja espacios sobrantes cuando no hay unidad', () => {
+    expect(formatAmount(2, '')).toBe('2');
+  });
+});
+
+describe('formatServings', () => {
+  it('usa singular y plural', () => {
+    expect(formatServings(1)).toBe('1 porción');
+    expect(formatServings(4)).toBe('4 porciones');
   });
 });
