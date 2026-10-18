@@ -4,10 +4,57 @@
     <p class="catalog__intro">Explora la colección y encuentra tu próxima receta.</p>
   </div>
 
+  <form class="filters" role="search" aria-label="Buscar y filtrar recetas" (submit)="$event.preventDefault()">
+    <div class="field">
+      <label class="field__label" for="filter-search">Buscar por nombre</label>
+      <input
+        #searchInput
+        id="filter-search"
+        class="control"
+        type="search"
+        name="search"
+        placeholder="Por ejemplo, tortilla"
+        autocomplete="off"
+        maxlength="100"
+        [value]="searchText()"
+        (input)="onSearch($event)"
+      />
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="filter-category">Categoría</label>
+      <select
+        id="filter-category"
+        class="control"
+        [disabled]="categories().length === 0"
+        (change)="onCategory($event)"
+      >
+        <option value="" [selected]="category() === null">Todas</option>
+        @for (item of categories(); track item.id) {
+          <option [value]="item.id" [selected]="item.id === category()">{{ item.name }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="filter-difficulty">Dificultad</label>
+      <select id="filter-difficulty" class="control" (change)="onDifficulty($event)">
+        <option value="" [selected]="difficulty() === null">Todas</option>
+        @for (item of difficulties; track item.value) {
+          <option [value]="item.value" [selected]="item.value === difficulty()">{{ item.label }}</option>
+        }
+      </select>
+    </div>
+
+    <button type="button" class="btn btn-secondary filters__clear" [disabled]="!hasFilters()" (click)="clearFilters()">
+      Limpiar filtros
+    </button>
+  </form>
+
   <p class="catalog__status" role="status">{{ summary() }}</p>
 
-  @switch (status()) {
-    @case ('loading') {
+  @switch (view()) {
+    @case ('skeleton') {
       <ul class="grid" role="list" aria-hidden="true">
         @for (item of skeletons; track item) {
           <li class="skeleton"></li>
@@ -19,23 +66,29 @@
       <div class="alert alert--error catalog__message" role="alert">
         <h2>No pudimos cargar las recetas</h2>
         <p>Comprueba tu conexión e inténtalo de nuevo.</p>
-        <button type="button" class="btn btn-primary" (click)="load()">Reintentar</button>
+        <button type="button" class="btn btn-primary" (click)="retry()">Reintentar</button>
       </div>
     }
 
-    @case ('ready') {
-      @if (recipes().length === 0) {
-        <div class="catalog__message">
+    @case ('empty') {
+      <div class="catalog__message">
+        @if (filtersApplied()) {
+          <h2>No encontramos recetas con esos filtros</h2>
+          <p>Prueba con otra búsqueda o quita algún filtro.</p>
+          <button type="button" class="btn btn-secondary" (click)="clearFilters()">Limpiar filtros</button>
+        } @else {
           <h2>Todavía no hay recetas</h2>
           <p>Cuando se añadan recetas, aparecerán aquí.</p>
-        </div>
-      } @else {
-        <ul class="grid" role="list">
-          @for (recipe of recipes(); track recipe.id) {
-            <li><app-recipe-card [recipe]="recipe" /></li>
-          }
-        </ul>
-      }
+        }
+      </div>
+    }
+
+    @case ('grid') {
+      <ul class="grid" role="list" [class.is-refreshing]="status() === 'loading'" [attr.aria-busy]="status() === 'loading'">
+        @for (recipe of recipes(); track recipe.id) {
+          <li><app-recipe-card [recipe]="recipe" /></li>
+        }
+      </ul>
     }
   }
 </section>
