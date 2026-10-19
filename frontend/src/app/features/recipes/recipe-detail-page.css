@@ -67,6 +67,25 @@
   font-weight: 700;
 }
 
+/* Acciones (solo si la API admite escrituras) */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+.btn--outline-danger {
+  background: transparent;
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+.btn--outline-danger:hover {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
 /* Ingredientes y preparacion */
 .content {
   display: grid;

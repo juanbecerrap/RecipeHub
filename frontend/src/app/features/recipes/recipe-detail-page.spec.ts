@@ -1,12 +1,19 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Title } from '@angular/platform-browser';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { Observable, Subject, of, throwError } from 'rxjs';
 
+import '../../../testing/dialog-polyfill';
 import { Recipe } from '../../core/models';
+import { Notices } from '../../core/notices';
 import { RecipesApi } from '../../core/recipes-api';
+import { WriteAccess } from '../../core/write-access';
 import { RecipeDetailPage } from './recipe-detail-page';
+
+@Component({ selector: 'app-blank-page', template: '' })
+class BlankPage {}
 
 const recipe: Recipe = {
   id: 7,
@@ -32,21 +39,39 @@ const recipe: Recipe = {
 };
 
 type GetRecipe = (id: number) => Observable<Recipe>;
+type DeleteRecipe = (id: number) => Observable<void>;
+
+interface SetupOptions {
+  id?: string;
+  canWrite?: boolean;
+  deleteRecipe?: DeleteRecipe;
+}
 
 describe('RecipeDetailPage', () => {
-  const setup = async (implementation: GetRecipe, id = '7') => {
+  const setup = async (implementation: GetRecipe, options: SetupOptions = {}) => {
+    const { id = '7', canWrite = false, deleteRecipe = () => of(undefined) } = options;
     const getRecipe = vi.fn<GetRecipe>(implementation);
+    const removeRecipe = vi.fn<DeleteRecipe>(deleteRecipe);
 
     TestBed.configureTestingModule({
       imports: [RecipeDetailPage],
-      providers: [provideRouter([]), { provide: RecipesApi, useValue: { getRecipe } }],
+      providers: [
+        provideRouter([{ path: '', component: BlankPage }]),
+        { provide: RecipesApi, useValue: { getRecipe, deleteRecipe: removeRecipe } },
+        { provide: WriteAccess, useValue: { canWrite: signal(canWrite) } },
+      ],
     });
 
     const fixture = TestBed.createComponent(RecipeDetailPage);
     fixture.componentRef.setInput('id', id);
     await fixture.whenStable();
 
-    return { fixture, element: fixture.nativeElement as HTMLElement, getRecipe };
+    return {
+      fixture,
+      element: fixture.nativeElement as HTMLElement,
+      getRecipe,
+      removeRecipe,
+    };
   };
 
   it('muestra los datos de la receta, los ingredientes y los pasos', async () => {
@@ -83,7 +108,7 @@ describe('RecipeDetailPage', () => {
   });
 
   it('no consulta la API si el identificador no es valido', async () => {
-    const { element, getRecipe } = await setup(() => of(recipe), 'abc');
+    const { element, getRecipe } = await setup(() => of(recipe), { id: 'abc' });
 
     expect(getRecipe).not.toHaveBeenCalled();
     expect(element.querySelector('h1')?.textContent).toContain('No encontramos esa receta');
@@ -123,5 +148,65 @@ describe('RecipeDetailPage', () => {
     await fixture.whenStable();
 
     expect(getRecipe.mock.calls.map((call) => call[0])).toEqual([7, 9]);
+  });
+
+  describe('eliminar', () => {
+    const openDialog = async (options: SetupOptions = {}) => {
+      const page = await setup(() => of(recipe), { canWrite: true, ...options });
+      (page.element.querySelector('.btn--delete') as HTMLButtonElement).click();
+      await page.fixture.whenStable();
+      return { ...page, dialog: page.element.querySelector('dialog') as HTMLDialogElement };
+    };
+
+    it('no muestra el boton en la demostracion de solo lectura', async () => {
+      const { element } = await setup(() => of(recipe), { canWrite: false });
+
+      expect(element.querySelector('.btn--delete')).toBeNull();
+      expect(element.querySelector('dialog')).toBeNull();
+    });
+
+    it('pide confirmacion antes de eliminar', async () => {
+      const { dialog, removeRecipe } = await openDialog();
+
+      expect(dialog.hasAttribute('open')).toBe(true);
+      expect(dialog.textContent).toContain('Pancakes esponjosos');
+      expect(removeRecipe).not.toHaveBeenCalled();
+    });
+
+    it('no elimina nada si se cancela', async () => {
+      const { fixture, dialog, removeRecipe } = await openDialog();
+
+      (dialog.querySelector('.btn-secondary') as HTMLButtonElement).click();
+      await fixture.whenStable();
+
+      expect(dialog.hasAttribute('open')).toBe(false);
+      expect(removeRecipe).not.toHaveBeenCalled();
+    });
+
+    it('elimina la receta al confirmar, avisa y vuelve al catalogo', async () => {
+      const { fixture, dialog, removeRecipe } = await openDialog();
+
+      (dialog.querySelector('.btn-danger') as HTMLButtonElement).click();
+      await fixture.whenStable();
+
+      expect(removeRecipe).toHaveBeenCalledWith(7);
+      expect(TestBed.inject(Notices).message()).toBe('Receta eliminada');
+      expect(TestBed.inject(Router).url).toBe('/');
+    });
+
+    it('muestra el error en el dialogo y permite intentarlo de nuevo', async () => {
+      const { fixture, dialog } = await openDialog({
+        deleteRecipe: () => throwError(() => new HttpErrorResponse({ status: 500 })),
+      });
+
+      (dialog.querySelector('.btn-danger') as HTMLButtonElement).click();
+      await fixture.whenStable();
+
+      expect(dialog.querySelector('[role="alert"]')?.textContent).toContain(
+        'No pudimos eliminar la receta'
+      );
+      expect(dialog.hasAttribute('open')).toBe(true);
+      expect((dialog.querySelector('.btn-danger') as HTMLButtonElement).disabled).toBe(false);
+    });
   });
 });

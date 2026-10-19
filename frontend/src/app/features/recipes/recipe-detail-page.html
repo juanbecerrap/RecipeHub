@@ -65,6 +65,14 @@
                   <dd class="fact__value">{{ servings() }}</dd>
                 </div>
               </dl>
+
+              @if (canWrite()) {
+                <div class="actions">
+                  <button type="button" class="btn btn--outline-danger btn--delete" (click)="askDelete()">
+                    Eliminar receta
+                  </button>
+                </div>
+              }
             </div>
           </div>
 
@@ -90,6 +98,18 @@
               </ol>
             </section>
           </div>
+
+          @if (canWrite()) {
+            <app-confirm-dialog
+              heading="¿Eliminar esta receta?"
+              [message]="deleteMessage()"
+              confirmLabel="Sí, eliminar"
+              cancelLabel="Cancelar"
+              [busy]="deleting()"
+              [errorMessage]="deleteError()"
+              (confirmed)="confirmDelete()"
+            />
+          }
         </article>
       }
     }
