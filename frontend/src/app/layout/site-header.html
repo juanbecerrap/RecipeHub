@@ -15,9 +15,8 @@
           <a
             class="nav__link"
             routerLink="/"
-            routerLinkActive="is-active"
-            ariaCurrentWhenActive="page"
-            [routerLinkActiveOptions]="{ exact: true }"
+            [class.is-active]="current() !== null"
+            [attr.aria-current]="current()"
             >Recetas</a
           >
         </li>
