@@ -22,6 +22,11 @@ describe('rutas', () => {
     expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toContain('Recetas');
   });
 
+  it('la ruta de nueva receta muestra el formulario y no el detalle', async () => {
+    const harness = await RouterTestingHarness.create('/recetas/nueva');
+    expect(harness.routeNativeElement?.localName).toBe('app-recipe-form-page');
+  });
+
   it('la ruta de una receta muestra la pagina de detalle', async () => {
     const harness = await RouterTestingHarness.create('/recetas/7');
     expect(harness.routeNativeElement?.localName).toBe('app-recipe-detail-page');

@@ -3,6 +3,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
 
+import { WriteAccess } from '../core/write-access';
+
 // 'page' en el catalogo, 'true' dentro de una receta (misma seccion), nada en otro sitio
 const currentSection = (url: string): 'page' | 'true' | null => {
   const path = url.split(/[?#]/)[0];
@@ -20,6 +22,8 @@ const currentSection = (url: string): 'page' | 'true' | null => {
 })
 export class SiteHeader {
   private readonly router = inject(Router);
+
+  protected readonly canWrite = inject(WriteAccess).canWrite;
 
   protected readonly current = toSignal(
     this.router.events.pipe(

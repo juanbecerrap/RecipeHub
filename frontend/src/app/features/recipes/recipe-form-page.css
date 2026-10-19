@@ -1,0 +1,104 @@
+.form-page__back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+  font-weight: 600;
+}
+
+.form-page__intro {
+  margin-bottom: var(--space-5);
+  color: var(--color-text-muted);
+}
+
+.recipe-form {
+  display: grid;
+  gap: var(--space-5);
+  max-width: 52rem;
+}
+
+.form-section {
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.form-section h2 {
+  margin-bottom: var(--space-4);
+}
+
+.form-grid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+@media (min-width: 40em) {
+  .form-grid--two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .form-grid--three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+textarea.control {
+  min-height: 6rem;
+  resize: vertical;
+}
+
+/* Filas de ingredientes y pasos */
+.rows {
+  display: grid;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.ingredient-row,
+.step-row {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+}
+
+.row__remove {
+  justify-self: start;
+}
+
+@media (min-width: 48em) {
+  .ingredient-row {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+    align-items: start;
+  }
+
+  .step-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+  }
+
+  /* Alinea el boton con los campos, por debajo de su etiqueta */
+  .row__remove {
+    margin-top: 2.1rem;
+  }
+}
+
+.link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-sage-700);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}

@@ -1,11 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 
+import { WriteAccess } from './core/write-access';
 import { App } from './app';
 
 @Component({ selector: 'app-test-page', template: '<h1>Pagina de prueba</h1>' })
 class TestPage {}
+
+// La cabecera consulta si se puede escribir: aqui no hace falta la API
+const writeAccess = { provide: WriteAccess, useValue: { canWrite: signal(false) } };
 
 describe('App', () => {
   const render = async () => {
@@ -17,7 +21,7 @@ describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), writeAccess],
     }).compileComponents();
   });
 
@@ -54,6 +58,7 @@ describe('App al navegar', () => {
           { path: '', component: TestPage },
           { path: 'otra', component: TestPage },
         ]),
+        writeAccess,
       ],
     }).compileComponents();
   });

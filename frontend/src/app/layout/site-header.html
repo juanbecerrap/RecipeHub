@@ -20,6 +20,11 @@
             >Recetas</a
           >
         </li>
+        @if (canWrite()) {
+          <li>
+            <a class="btn btn-primary" routerLink="/recetas/nueva">Nueva receta</a>
+          </li>
+        }
       </ul>
     </nav>
   </div>
