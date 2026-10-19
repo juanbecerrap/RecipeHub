@@ -6,14 +6,19 @@ export const routes: Routes = [
     title: 'Recetas · RecipeHub',
     loadComponent: () => import('./features/recipes/catalog-page').then((m) => m.CatalogPage),
   },
-  // Las rutas fijas ('recetas/nueva') deben ir ANTES de 'recetas/:id'
+  // Las rutas fijas y mas especificas deben ir ANTES de 'recetas/:id'
   {
     path: 'recetas/nueva',
     title: 'Nueva receta · RecipeHub',
     loadComponent: () =>
       import('./features/recipes/recipe-form-page').then((m) => m.RecipeFormPage),
   },
-  // Paso 5.4: 'recetas/:id/editar' tambien ira antes de esta
+  {
+    path: 'recetas/:id/editar',
+    title: 'Editar receta · RecipeHub',
+    loadComponent: () =>
+      import('./features/recipes/recipe-form-page').then((m) => m.RecipeFormPage),
+  },
   {
     path: 'recetas/:id',
     title: 'Receta · RecipeHub',

@@ -27,6 +27,11 @@ describe('rutas', () => {
     expect(harness.routeNativeElement?.localName).toBe('app-recipe-form-page');
   });
 
+  it('la ruta de edicion muestra el formulario', async () => {
+    const harness = await RouterTestingHarness.create('/recetas/7/editar');
+    expect(harness.routeNativeElement?.localName).toBe('app-recipe-form-page');
+  });
+
   it('la ruta de una receta muestra la pagina de detalle', async () => {
     const harness = await RouterTestingHarness.create('/recetas/7');
     expect(harness.routeNativeElement?.localName).toBe('app-recipe-detail-page');

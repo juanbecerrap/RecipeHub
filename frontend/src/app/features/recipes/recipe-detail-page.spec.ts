@@ -209,4 +209,19 @@ describe('RecipeDetailPage', () => {
       expect((dialog.querySelector('.btn-danger') as HTMLButtonElement).disabled).toBe(false);
     });
   });
+  
+  describe('editar', () => {
+    it('muestra el enlace para editar cuando la API admite escrituras', async () => {
+      const { element } = await setup(() => of(recipe), { canWrite: true });
+
+      const link = element.querySelector('a[href="/recetas/7/editar"]');
+      expect(link?.textContent).toContain('Editar receta');
+    });
+
+    it('oculta el enlace para editar en la demostracion de solo lectura', async () => {
+      const { element } = await setup(() => of(recipe), { canWrite: false });
+
+      expect(element.querySelector('a[href="/recetas/7/editar"]')).toBeNull();
+    });
+  });
 });

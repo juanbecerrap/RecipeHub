@@ -32,10 +32,26 @@ const created: Recipe = {
   updatedAt: '2026-10-18T10:00:00.000Z',
 };
 
+// Receta que se edita en las pruebas de edicion
+const existing: Recipe = {
+  ...created,
+  imagePath: 'tortilla-patatas.jpg',
+  instructions: ['Pela las patatas.', 'Frie las patatas y la cebolla.'],
+  ingredients: [
+    { id: 1, name: 'Patatas', quantity: 500, unit: 'g' },
+    { id: 2, name: 'Huevos', quantity: 5, unit: '' },
+  ],
+};
+
 type CreateRecipe = (input: RecipeInput) => Observable<Recipe>;
+type UpdateRecipe = (id: number, input: RecipeInput) => Observable<Recipe>;
+type GetRecipe = (id: number) => Observable<Recipe>;
 
 interface SetupOptions {
+  id?: string;
   createRecipe?: CreateRecipe;
+  updateRecipe?: UpdateRecipe;
+  getRecipe?: GetRecipe;
   getCategories?: () => Observable<Category[]>;
 }
 
@@ -48,6 +64,8 @@ const unprocessable = (details: { field: string; message: string }[]) =>
 describe('RecipeFormPage', () => {
   const setup = async (options: SetupOptions = {}) => {
     const createRecipe = vi.fn<CreateRecipe>(options.createRecipe ?? (() => of(created)));
+    const updateRecipe = vi.fn<UpdateRecipe>(options.updateRecipe ?? (() => of(existing)));
+    const getRecipe = vi.fn<GetRecipe>(options.getRecipe ?? (() => of(existing)));
     const getCategories = options.getCategories ?? (() => of(categories));
 
     TestBed.configureTestingModule({
@@ -57,11 +75,14 @@ describe('RecipeFormPage', () => {
           { path: '', component: BlankPage },
           { path: 'recetas/:id', component: BlankPage },
         ]),
-        { provide: RecipesApi, useValue: { getCategories, createRecipe } },
+        { provide: RecipesApi, useValue: { getCategories, createRecipe, updateRecipe, getRecipe } },
       ],
     });
 
     const fixture = TestBed.createComponent(RecipeFormPage);
+    if (options.id !== undefined) {
+      fixture.componentRef.setInput('id', options.id);
+    }
     await fixture.whenStable();
     const element = fixture.nativeElement as HTMLElement;
 
@@ -98,7 +119,18 @@ describe('RecipeFormPage', () => {
       await fixture.whenStable();
     };
 
-    return { fixture, element, createRecipe, find, choose, fillValidForm, submit };
+    return {
+      fixture,
+      element,
+      createRecipe,
+      updateRecipe,
+      getRecipe,
+      find,
+      type,
+      choose,
+      fillValidForm,
+      submit,
+    };
   };
 
   it('muestra el formulario con una fila de ingrediente y un paso', async () => {
@@ -246,5 +278,106 @@ describe('RecipeFormPage', () => {
     expect(createRecipe).toHaveBeenCalledTimes(1);
     expect(button.disabled).toBe(true);
     expect(button.textContent).toContain('Guardando');
+  });
+
+  describe('edicion', () => {
+    it('carga la receta y rellena el formulario', async () => {
+      const { element, getRecipe, find } = await setup({ id: '7' });
+
+      expect(getRecipe).toHaveBeenCalledWith(7);
+      expect(element.querySelector('h1')?.textContent).toContain('Editar receta');
+      expect(find<HTMLInputElement>('#recipe-title').value).toBe('Tortilla de patatas');
+      expect(find<HTMLInputElement>('#recipe-time').value).toBe('45');
+      expect(find<HTMLSelectElement>('#recipe-category').selectedOptions[0].textContent).toContain(
+        'Postres'
+      );
+      expect(element.querySelectorAll('.ingredient-row').length).toBe(2);
+      expect(element.querySelectorAll('.step-row').length).toBe(2);
+      expect(find<HTMLButtonElement>('button[type="submit"]').textContent).toContain(
+        'Guardar cambios'
+      );
+    });
+
+    it('guarda los cambios con la edicion, avisa y vuelve a la receta', async () => {
+      const { createRecipe, updateRecipe, type, submit } = await setup({ id: '7' });
+
+      type('#recipe-title', 'Tortilla con cebolla');
+      await submit();
+
+      expect(createRecipe).not.toHaveBeenCalled();
+      expect(updateRecipe).toHaveBeenCalledTimes(1);
+      const [id, input] = updateRecipe.mock.calls[0];
+      expect(id).toBe(7);
+      expect(input.title).toBe('Tortilla con cebolla');
+      expect(input.ingredients.length).toBe(2);
+      expect(TestBed.inject(Notices).message()).toBe('Cambios guardados');
+      expect(TestBed.inject(Router).url).toBe('/recetas/7');
+    });
+
+    it('avisa cuando la receta que se edita no existe', async () => {
+      const { element } = await setup({
+        id: '7',
+        getRecipe: () => throwError(() => new HttpErrorResponse({ status: 404 })),
+      });
+
+      expect(element.querySelector('h1')?.textContent).toContain('No encontramos esa receta');
+      expect(element.querySelector('form')).toBeNull();
+    });
+
+    it('no consulta la API si el identificador no es valido', async () => {
+      const { element, getRecipe } = await setup({ id: 'abc' });
+
+      expect(getRecipe).not.toHaveBeenCalled();
+      expect(element.querySelector('h1')?.textContent).toContain('No encontramos esa receta');
+    });
+
+    it('muestra el error de carga y permite reintentar', async () => {
+      let calls = 0;
+      const { fixture, element } = await setup({
+        id: '7',
+        getRecipe: () => {
+          calls += 1;
+          return calls === 1
+            ? throwError(() => new HttpErrorResponse({ status: 500 }))
+            : of(existing);
+        },
+      });
+      expect(element.querySelector('[role="alert"]')?.textContent).toContain(
+        'No pudimos cargar la receta'
+      );
+
+      (element.querySelector('[role="alert"] button') as HTMLButtonElement).click();
+      await fixture.whenStable();
+
+      expect(element.querySelector('h1')?.textContent).toContain('Editar receta');
+      expect(calls).toBe(2);
+    });
+
+    it('conserva la foto actual aunque no este en la lista', async () => {
+      const { element, updateRecipe, submit } = await setup({
+        id: '7',
+        getRecipe: () => of({ ...existing, imagePath: 'tostadas-aguacate.jpg' }),
+      });
+
+      const values = Array.from(element.querySelectorAll<HTMLOptionElement>('#recipe-photo option')).map(
+        (option) => option.value
+      );
+      expect(values).toContain('tostadas-aguacate.jpg');
+
+      await submit();
+
+      expect(updateRecipe.mock.calls[0][1].imagePath).toBe('tostadas-aguacate.jpg');
+    });
+
+    it('no envia foto cuando la receta usa la foto por defecto', async () => {
+      const { updateRecipe, submit } = await setup({
+        id: '7',
+        getRecipe: () => of({ ...existing, imagePath: 'default.jpg' }),
+      });
+
+      await submit();
+
+      expect('imagePath' in updateRecipe.mock.calls[0][1]).toBe(false);
+    });
   });
 });

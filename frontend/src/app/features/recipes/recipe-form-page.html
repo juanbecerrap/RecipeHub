@@ -1,255 +1,286 @@
 <div class="container form-page">
-  <a class="form-page__back" routerLink="/">
+  <a class="form-page__back" [routerLink]="backLink()">
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
       <path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
     </svg>
-    Volver a las recetas
+    {{ backLabel() }}
   </a>
 
-  <h1>Nueva receta</h1>
-  <p class="form-page__intro">Todos los campos son obligatorios, salvo la foto y la unidad de cada ingrediente.</p>
-
-  <form class="recipe-form" [formGroup]="form" (ngSubmit)="submit()">
-    <section class="form-section" aria-labelledby="basics-title">
-      <h2 id="basics-title">Datos de la receta</h2>
-
-      <div class="form-grid">
-        <div class="field">
-          <label class="field__label" for="recipe-title">Título</label>
-          <input
-            id="recipe-title"
-            class="control"
-            type="text"
-            formControlName="title"
-            autocomplete="off"
-            aria-describedby="recipe-title-error"
-            [attr.aria-invalid]="invalid(form.controls.title)"
-          />
-          <app-field-error id="recipe-title-error" [control]="form.controls.title" [submitted]="submitted()" />
+  @switch (view()) {
+    @case ('loading') {
+      <div role="status">
+        <p class="visually-hidden">Cargando receta…</p>
+        <div aria-hidden="true">
+          <div class="skeleton skeleton--title"></div>
+          <div class="skeleton skeleton--block"></div>
+          <div class="skeleton skeleton--block"></div>
         </div>
+      </div>
+    }
 
-        <div class="field">
-          <label class="field__label" for="recipe-description">Descripción</label>
-          <textarea
-            id="recipe-description"
-            class="control"
-            rows="4"
-            formControlName="description"
-            aria-describedby="recipe-description-error"
-            [attr.aria-invalid]="invalid(form.controls.description)"
-          ></textarea>
-          <app-field-error id="recipe-description-error" [control]="form.controls.description" [submitted]="submitted()" />
-        </div>
+    @case ('notFound') {
+      <div class="form-page__message">
+        <h1>No encontramos esa receta</h1>
+        <p>La dirección no es correcta o la receta ya no está disponible.</p>
+        <a class="btn btn-primary" routerLink="/">Ver todas las recetas</a>
+      </div>
+    }
 
-        <div class="form-grid form-grid--two">
-          <div class="field">
-            <label class="field__label" for="recipe-category">Categoría</label>
-            <select
-              id="recipe-category"
-              class="control"
-              formControlName="categoryId"
-              aria-describedby="recipe-category-error"
-              [attr.aria-invalid]="invalid(form.controls.categoryId)"
-            >
-              <option [ngValue]="null">Selecciona una categoría</option>
-              @for (item of categories(); track item.id) {
-                <option [ngValue]="item.id">{{ item.name }}</option>
-              }
-            </select>
-            <app-field-error id="recipe-category-error" [control]="form.controls.categoryId" [submitted]="submitted()" />
-            @if (categoriesFailed()) {
-              <p class="field__error">
-                No pudimos cargar las categorías.
-                <button type="button" class="link-button" (click)="loadCategories()">Reintentar</button>
-              </p>
+    @case ('error') {
+      <div class="alert alert--error form-page__message" role="alert">
+        <h1>No pudimos cargar la receta</h1>
+        <p>Comprueba tu conexión e inténtalo de nuevo.</p>
+        <button type="button" class="btn btn-primary" (click)="retryLoad()">Reintentar</button>
+      </div>
+    }
+
+    @case ('ready') {
+      <h1>{{ heading() }}</h1>
+      <p class="form-page__intro">Todos los campos son obligatorios, salvo la foto y la unidad de cada ingrediente.</p>
+
+      <form class="recipe-form" [formGroup]="form" (ngSubmit)="submit()">
+        <section class="form-section" aria-labelledby="basics-title">
+          <h2 id="basics-title">Datos de la receta</h2>
+
+          <div class="form-grid">
+            <div class="field">
+              <label class="field__label" for="recipe-title">Título</label>
+              <input
+                id="recipe-title"
+                class="control"
+                type="text"
+                formControlName="title"
+                autocomplete="off"
+                aria-describedby="recipe-title-error"
+                [attr.aria-invalid]="invalid(form.controls.title)"
+              />
+              <app-field-error id="recipe-title-error" [control]="form.controls.title" [submitted]="submitted()" />
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="recipe-description">Descripción</label>
+              <textarea
+                id="recipe-description"
+                class="control"
+                rows="4"
+                formControlName="description"
+                aria-describedby="recipe-description-error"
+                [attr.aria-invalid]="invalid(form.controls.description)"
+              ></textarea>
+              <app-field-error id="recipe-description-error" [control]="form.controls.description" [submitted]="submitted()" />
+            </div>
+
+            <div class="form-grid form-grid--two">
+              <div class="field">
+                <label class="field__label" for="recipe-category">Categoría</label>
+                <select
+                  id="recipe-category"
+                  class="control"
+                  formControlName="categoryId"
+                  aria-describedby="recipe-category-error"
+                  [attr.aria-invalid]="invalid(form.controls.categoryId)"
+                >
+                  <option [ngValue]="null">Selecciona una categoría</option>
+                  @for (item of categories(); track item.id) {
+                    <option [ngValue]="item.id">{{ item.name }}</option>
+                  }
+                </select>
+                <app-field-error id="recipe-category-error" [control]="form.controls.categoryId" [submitted]="submitted()" />
+                @if (categoriesFailed()) {
+                  <p class="field__error">
+                    No pudimos cargar las categorías.
+                    <button type="button" class="link-button" (click)="loadCategories()">Reintentar</button>
+                  </p>
+                }
+              </div>
+
+              <div class="field">
+                <label class="field__label" for="recipe-difficulty">Dificultad</label>
+                <select
+                  id="recipe-difficulty"
+                  class="control"
+                  formControlName="difficulty"
+                  aria-describedby="recipe-difficulty-error"
+                  [attr.aria-invalid]="invalid(form.controls.difficulty)"
+                >
+                  <option value="">Selecciona la dificultad</option>
+                  @for (item of difficulties; track item.value) {
+                    <option [value]="item.value">{{ item.label }}</option>
+                  }
+                </select>
+                <app-field-error id="recipe-difficulty-error" [control]="form.controls.difficulty" [submitted]="submitted()" />
+              </div>
+            </div>
+
+            <div class="form-grid form-grid--three">
+              <div class="field">
+                <label class="field__label" for="recipe-time">Tiempo (minutos)</label>
+                <input
+                  id="recipe-time"
+                  class="control"
+                  type="number"
+                  inputmode="numeric"
+                  formControlName="preparationTime"
+                  aria-describedby="recipe-time-error"
+                  [attr.aria-invalid]="invalid(form.controls.preparationTime)"
+                />
+                <app-field-error id="recipe-time-error" [control]="form.controls.preparationTime" [submitted]="submitted()" />
+              </div>
+
+              <div class="field">
+                <label class="field__label" for="recipe-servings">Porciones</label>
+                <input
+                  id="recipe-servings"
+                  class="control"
+                  type="number"
+                  inputmode="numeric"
+                  formControlName="servings"
+                  aria-describedby="recipe-servings-error"
+                  [attr.aria-invalid]="invalid(form.controls.servings)"
+                />
+                <app-field-error id="recipe-servings-error" [control]="form.controls.servings" [submitted]="submitted()" />
+              </div>
+
+              <div class="field">
+                <label class="field__label" for="recipe-photo">Foto (opcional)</label>
+                <select id="recipe-photo" class="control" formControlName="imagePath">
+                  @for (photo of photos(); track photo.value) {
+                    <option [value]="photo.value">{{ photo.label }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section" aria-labelledby="ingredients-title">
+          <h2 id="ingredients-title">Ingredientes</h2>
+
+          <div class="rows" formArrayName="ingredients">
+            @for (group of form.controls.ingredients.controls; track group; let i = $index) {
+              <div class="ingredient-row" role="group" [formGroupName]="i" [attr.aria-label]="'Ingrediente ' + (i + 1)">
+                <div class="field">
+                  <label class="field__label" [attr.for]="'ingredient-name-' + i">Ingrediente</label>
+                  <input
+                    [id]="'ingredient-name-' + i"
+                    class="control"
+                    type="text"
+                    formControlName="name"
+                    autocomplete="off"
+                    [attr.aria-describedby]="'ingredient-name-' + i + '-error'"
+                    [attr.aria-invalid]="invalid(group.controls.name)"
+                  />
+                  <app-field-error [id]="'ingredient-name-' + i + '-error'" [control]="group.controls.name" [submitted]="submitted()" />
+                </div>
+
+                <div class="field">
+                  <label class="field__label" [attr.for]="'ingredient-quantity-' + i">Cantidad</label>
+                  <input
+                    [id]="'ingredient-quantity-' + i"
+                    class="control"
+                    type="number"
+                    step="any"
+                    inputmode="decimal"
+                    formControlName="quantity"
+                    [attr.aria-describedby]="'ingredient-quantity-' + i + '-error'"
+                    [attr.aria-invalid]="invalid(group.controls.quantity)"
+                  />
+                  <app-field-error [id]="'ingredient-quantity-' + i + '-error'" [control]="group.controls.quantity" [submitted]="submitted()" />
+                </div>
+
+                <div class="field">
+                  <label class="field__label" [attr.for]="'ingredient-unit-' + i">Unidad</label>
+                  <input
+                    [id]="'ingredient-unit-' + i"
+                    class="control"
+                    type="text"
+                    formControlName="unit"
+                    autocomplete="off"
+                    placeholder="g, ml, cda…"
+                    [attr.aria-describedby]="'ingredient-unit-' + i + '-error'"
+                    [attr.aria-invalid]="invalid(group.controls.unit)"
+                  />
+                  <app-field-error [id]="'ingredient-unit-' + i + '-error'" [control]="group.controls.unit" [submitted]="submitted()" />
+                </div>
+
+                <button
+                  type="button"
+                  class="btn btn-secondary row__remove"
+                  [disabled]="form.controls.ingredients.length === 1"
+                  [attr.aria-label]="'Quitar ingrediente ' + (i + 1)"
+                  (click)="removeIngredient(i)"
+                >
+                  Quitar
+                </button>
+              </div>
             }
           </div>
 
-          <div class="field">
-            <label class="field__label" for="recipe-difficulty">Dificultad</label>
-            <select
-              id="recipe-difficulty"
-              class="control"
-              formControlName="difficulty"
-              aria-describedby="recipe-difficulty-error"
-              [attr.aria-invalid]="invalid(form.controls.difficulty)"
-            >
-              <option value="">Selecciona la dificultad</option>
-              @for (item of difficulties; track item.value) {
-                <option [value]="item.value">{{ item.label }}</option>
-              }
-            </select>
-            <app-field-error id="recipe-difficulty-error" [control]="form.controls.difficulty" [submitted]="submitted()" />
-          </div>
-        </div>
+          <button
+            type="button"
+            id="add-ingredient"
+            class="btn btn-secondary"
+            [disabled]="form.controls.ingredients.length >= maxItems"
+            (click)="addIngredient()"
+          >
+            Añadir ingrediente
+          </button>
+        </section>
 
-        <div class="form-grid form-grid--three">
-          <div class="field">
-            <label class="field__label" for="recipe-time">Tiempo (minutos)</label>
-            <input
-              id="recipe-time"
-              class="control"
-              type="number"
-              inputmode="numeric"
-              formControlName="preparationTime"
-              aria-describedby="recipe-time-error"
-              [attr.aria-invalid]="invalid(form.controls.preparationTime)"
-            />
-            <app-field-error id="recipe-time-error" [control]="form.controls.preparationTime" [submitted]="submitted()" />
-          </div>
+        <section class="form-section" aria-labelledby="steps-title">
+          <h2 id="steps-title">Preparación</h2>
 
-          <div class="field">
-            <label class="field__label" for="recipe-servings">Porciones</label>
-            <input
-              id="recipe-servings"
-              class="control"
-              type="number"
-              inputmode="numeric"
-              formControlName="servings"
-              aria-describedby="recipe-servings-error"
-              [attr.aria-invalid]="invalid(form.controls.servings)"
-            />
-            <app-field-error id="recipe-servings-error" [control]="form.controls.servings" [submitted]="submitted()" />
+          <div class="rows" formArrayName="instructions">
+            @for (step of form.controls.instructions.controls; track step; let i = $index) {
+              <div class="step-row" role="group" [attr.aria-label]="'Paso ' + (i + 1)">
+                <div class="field">
+                  <label class="field__label" [attr.for]="'step-' + i">Paso {{ i + 1 }}</label>
+                  <textarea
+                    [id]="'step-' + i"
+                    class="control"
+                    rows="2"
+                    [formControlName]="i"
+                    [attr.aria-describedby]="'step-' + i + '-error'"
+                    [attr.aria-invalid]="invalid(step)"
+                  ></textarea>
+                  <app-field-error [id]="'step-' + i + '-error'" [control]="step" [submitted]="submitted()" />
+                </div>
+
+                <button
+                  type="button"
+                  class="btn btn-secondary row__remove"
+                  [disabled]="form.controls.instructions.length === 1"
+                  [attr.aria-label]="'Quitar paso ' + (i + 1)"
+                  (click)="removeStep(i)"
+                >
+                  Quitar
+                </button>
+              </div>
+            }
           </div>
 
-          <div class="field">
-            <label class="field__label" for="recipe-photo">Foto (opcional)</label>
-            <select id="recipe-photo" class="control" formControlName="imagePath">
-              @for (photo of photos; track photo.value) {
-                <option [value]="photo.value">{{ photo.label }}</option>
-              }
-            </select>
-          </div>
-        </div>
-      </div>
-    </section>
+          <button
+            type="button"
+            id="add-step"
+            class="btn btn-secondary"
+            [disabled]="form.controls.instructions.length >= maxItems"
+            (click)="addStep()"
+          >
+            Añadir paso
+          </button>
+        </section>
 
-    <section class="form-section" aria-labelledby="ingredients-title">
-      <h2 id="ingredients-title">Ingredientes</h2>
-
-      <div class="rows" formArrayName="ingredients">
-        @for (group of form.controls.ingredients.controls; track group; let i = $index) {
-          <div class="ingredient-row" role="group" [formGroupName]="i" [attr.aria-label]="'Ingrediente ' + (i + 1)">
-            <div class="field">
-              <label class="field__label" [attr.for]="'ingredient-name-' + i">Ingrediente</label>
-              <input
-                [id]="'ingredient-name-' + i"
-                class="control"
-                type="text"
-                formControlName="name"
-                autocomplete="off"
-                [attr.aria-describedby]="'ingredient-name-' + i + '-error'"
-                [attr.aria-invalid]="invalid(group.controls.name)"
-              />
-              <app-field-error [id]="'ingredient-name-' + i + '-error'" [control]="group.controls.name" [submitted]="submitted()" />
-            </div>
-
-            <div class="field">
-              <label class="field__label" [attr.for]="'ingredient-quantity-' + i">Cantidad</label>
-              <input
-                [id]="'ingredient-quantity-' + i"
-                class="control"
-                type="number"
-                step="any"
-                inputmode="decimal"
-                formControlName="quantity"
-                [attr.aria-describedby]="'ingredient-quantity-' + i + '-error'"
-                [attr.aria-invalid]="invalid(group.controls.quantity)"
-              />
-              <app-field-error [id]="'ingredient-quantity-' + i + '-error'" [control]="group.controls.quantity" [submitted]="submitted()" />
-            </div>
-
-            <div class="field">
-              <label class="field__label" [attr.for]="'ingredient-unit-' + i">Unidad</label>
-              <input
-                [id]="'ingredient-unit-' + i"
-                class="control"
-                type="text"
-                formControlName="unit"
-                autocomplete="off"
-                placeholder="g, ml, cda…"
-                [attr.aria-describedby]="'ingredient-unit-' + i + '-error'"
-                [attr.aria-invalid]="invalid(group.controls.unit)"
-              />
-              <app-field-error [id]="'ingredient-unit-' + i + '-error'" [control]="group.controls.unit" [submitted]="submitted()" />
-            </div>
-
-            <button
-              type="button"
-              class="btn btn-secondary row__remove"
-              [disabled]="form.controls.ingredients.length === 1"
-              [attr.aria-label]="'Quitar ingrediente ' + (i + 1)"
-              (click)="removeIngredient(i)"
-            >
-              Quitar
-            </button>
-          </div>
+        @if (saveError(); as text) {
+          <div class="alert alert--error" role="alert">{{ text }}</div>
         }
-      </div>
 
-      <button
-        type="button"
-        id="add-ingredient"
-        class="btn btn-secondary"
-        [disabled]="form.controls.ingredients.length >= maxItems"
-        (click)="addIngredient()"
-      >
-        Añadir ingrediente
-      </button>
-    </section>
-
-    <section class="form-section" aria-labelledby="steps-title">
-      <h2 id="steps-title">Preparación</h2>
-
-      <div class="rows" formArrayName="instructions">
-        @for (step of form.controls.instructions.controls; track step; let i = $index) {
-          <div class="step-row" role="group" [attr.aria-label]="'Paso ' + (i + 1)">
-            <div class="field">
-              <label class="field__label" [attr.for]="'step-' + i">Paso {{ i + 1 }}</label>
-              <textarea
-                [id]="'step-' + i"
-                class="control"
-                rows="2"
-                [formControlName]="i"
-                [attr.aria-describedby]="'step-' + i + '-error'"
-                [attr.aria-invalid]="invalid(step)"
-              ></textarea>
-              <app-field-error [id]="'step-' + i + '-error'" [control]="step" [submitted]="submitted()" />
-            </div>
-
-            <button
-              type="button"
-              class="btn btn-secondary row__remove"
-              [disabled]="form.controls.instructions.length === 1"
-              [attr.aria-label]="'Quitar paso ' + (i + 1)"
-              (click)="removeStep(i)"
-            >
-              Quitar
-            </button>
-          </div>
-        }
-      </div>
-
-      <button
-        type="button"
-        id="add-step"
-        class="btn btn-secondary"
-        [disabled]="form.controls.instructions.length >= maxItems"
-        (click)="addStep()"
-      >
-        Añadir paso
-      </button>
-    </section>
-
-    @if (saveError(); as text) {
-      <div class="alert alert--error" role="alert">{{ text }}</div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="saving()" [attr.aria-busy]="saving()">
+            {{ saving() ? 'Guardando…' : submitLabel() }}
+          </button>
+          <a class="btn btn-secondary" [routerLink]="backLink()">Cancelar</a>
+        </div>
+      </form>
     }
-
-    <div class="form-actions">
-      <button type="submit" class="btn btn-primary" [disabled]="saving()" [attr.aria-busy]="saving()">
-        {{ saving() ? 'Guardando…' : 'Guardar receta' }}
-      </button>
-      <a class="btn btn-secondary" routerLink="/">Cancelar</a>
-    </div>
-  </form>
+  }
 </div>

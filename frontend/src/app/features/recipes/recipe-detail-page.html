@@ -68,6 +68,7 @@
 
               @if (canWrite()) {
                 <div class="actions">
+                  <a class="btn btn-secondary" [routerLink]="['/recetas', item.id, 'editar']">Editar receta</a>
                   <button type="button" class="btn btn--outline-danger btn--delete" (click)="askDelete()">
                     Eliminar receta
                   </button>
