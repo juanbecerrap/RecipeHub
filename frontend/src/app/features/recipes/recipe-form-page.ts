@@ -10,6 +10,7 @@ import {
   input,
   signal,
 } from '@angular/core';
+import { parseRecipeId } from '../../core/recipe-id';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
@@ -58,9 +59,7 @@ const SERVER_MESSAGES: Record<string, string> = {
 
 const translate = (message: string): string => SERVER_MESSAGES[message] ?? message;
 
-// Un identificador valido es un entero positivo de hasta 10 cifras
-const parseId = (value: string): number | null =>
-  /^[1-9][0-9]{0,9}$/.test(value) ? Number(value) : null;
+
 
 const DIRECT_FIELDS = [
   'title',
@@ -144,7 +143,7 @@ export class RecipeFormPage {
             return EMPTY;
           }
 
-          const recipeId = parseId(id);
+          const recipeId = parseRecipeId(id);
           if (recipeId === null) {
             this.loadStatus.set('notFound');
             return EMPTY;

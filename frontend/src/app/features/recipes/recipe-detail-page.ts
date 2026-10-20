@@ -10,6 +10,7 @@ import { Notices } from '../../core/notices';
 import { RecipesApi } from '../../core/recipes-api';
 import { WriteAccess } from '../../core/write-access';
 import { ConfirmDialog } from '../../shared/confirm-dialog';
+import { parseRecipeId } from '../../core/recipe-id';
 import {
   DIFFICULTY_LABELS,
   formatAmount,
@@ -20,9 +21,7 @@ import { RecipePhoto } from '../../shared/recipe-photo';
 
 type DetailStatus = 'loading' | 'ready' | 'notFound' | 'error';
 
-// Un identificador valido es un entero positivo de hasta 10 cifras
-const parseRecipeId = (value: string): number | null =>
-  /^[1-9][0-9]{0,9}$/.test(value) ? Number(value) : null;
+
 
 @Component({
   imports: [RouterLink, RecipePhoto, ConfirmDialog],
