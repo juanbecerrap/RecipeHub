@@ -105,7 +105,7 @@ git --version
 ### 1. Descargar el proyecto
 
 ```
-git clone <URL-DEL-REPOSITORIO>
+git clone https://github.com/juanbecerrap/RecipeHub.git
 cd RecipeHub
 ```
 
@@ -292,7 +292,7 @@ Hay 12 pruebas en el backend (validación de recetas) y 108 en el frontend (serv
 - Foco visible y navegación completa **con teclado**; diálogo de confirmación nativo (`<dialog>`) que atrapa el foco y se cierra con Escape.
 - Colores elegidos con una relación de contraste de al menos 4,5:1 para el texto, calculada durante el diseño.
 - Respeta la preferencia de menos movimiento del sistema.
-- Revisado manualmente con teclado y en distintos tamaños de pantalla.
+- Revisado manualmente con teclado y en distintos tamaños de pantalla, y con una puntuación de 100 en la categoría de accesibilidad de Lighthouse en el catálogo, el detalle y el formulario.
 
 ## Decisiones de diseño
 
