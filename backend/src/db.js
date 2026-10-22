@@ -4,13 +4,19 @@
 import mysql from 'mysql2/promise';
 import { config } from './config.js';
 
+// Con TLS se verifica siempre el certificado del servidor. Si hay un
+// certificado CA propio (por ejemplo, el de Aiven), se usa para verificarlo.
+const ssl = config.db.ssl
+  ? { rejectUnauthorized: true, ...(config.db.sslCa ? { ca: config.db.sslCa } : {}) }
+  : undefined;
+
 export const pool = mysql.createPool({
   host: config.db.host,
   port: config.db.port,
   user: config.db.user,
   password: config.db.password,
   database: config.db.database,
-  ssl: config.db.ssl ? { rejectUnauthorized: true } : undefined,
+  ssl,
   charset: 'utf8mb4',
   waitForConnections: true,
   connectionLimit: config.db.connectionLimit,

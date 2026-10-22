@@ -16,6 +16,12 @@ import recipesRouter from './routes/recipes.js';
 
 const app = express();
 
+// Detras de un proxy (Render) la IP real del visitante llega en X-Forwarded-For.
+// Sin esto, el limite de peticiones veria siempre la IP del proxy.
+if (config.trustProxy > 0) {
+  app.set('trust proxy', config.trustProxy);
+}
+
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 
 const tooManyRequests = (req, res, next) =>
