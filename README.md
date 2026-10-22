@@ -30,7 +30,13 @@ Desarrollé este proyecto como parte de mi portafolio para practicar el desarrol
 
 ### Vista móvil
 
-![RecipeHub en dispositivos móviles](docs/capturas/movil.png)
+<p align="center">
+  <img
+    src="docs/capturas/movil.png"
+    alt="RecipeHub en dispositivos móviles"
+    width="280"
+  />
+</p>
 
 ## Funcionalidades
 
