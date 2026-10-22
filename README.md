@@ -1,109 +1,159 @@
 # RecipeHub
 
-> Descubre, organiza y prepara tus recetas favoritas.
+RecipeHub es una aplicación web para consultar y gestionar recetas de cocina. Permite explorar un catálogo, buscar recetas, aplicar filtros y consultar sus ingredientes y pasos de preparación. También incluye formularios para crear, editar y eliminar recetas.
 
-RecipeHub es una aplicación web para explorar y gestionar recetas de cocina. Permite consultar un catálogo de recetas, buscar y filtrar, ver los ingredientes y los pasos de preparación, y crear, editar y eliminar recetas. Es el quinto y último proyecto de mi portafolio como desarrollador web, y lo he usado para practicar un stack distinto del de los anteriores: **Angular, Node.js, Express y MySQL**.
+Desarrollé este proyecto como parte de mi portafolio para practicar el desarrollo frontend con Angular y la creación de una API REST conectada a una base de datos relacional con Node.js, Express y MySQL.
 
-**Demostración en línea (solo lectura):** <https://recipehub-ddb79.web.app>
+**Demostración:** [Ver RecipeHub](https://recipehub-ddb79.web.app/)
 
-**Código fuente:** <https://github.com/juanbecerrap/RecipeHub>
+**Repositorio:** [GitHub](https://github.com/juanbecerrap/RecipeHub)
 
-> **Sobre la demostración:** en la versión en línea están **desactivadas a propósito las funciones de crear, editar y eliminar recetas**. La aplicación no tiene autenticación, y dejarlas abiertas permitiría que cualquiera modificara o borrara los datos. En la demo se puede explorar el catálogo, buscar, filtrar y ver el detalle de cada receta. El CRUD completo funciona al ejecutar el proyecto en local (consulta las [capturas](#capturas) del formulario y de la confirmación de borrado).
->
-> La demostración usa planes gratuitos y se "duerme" cuando nadie la visita: la primera carga puede tardar cerca de un minuto en despertar. Más detalles en [Despliegue](#despliegue-en-la-nube-planes-gratuitos). Para probar el CRUD completo, ejecuta el proyecto en local siguiendo las instrucciones de [Instalación](#instalación-y-puesta-en-marcha-en-windows).
+> **Importante:** la demostración pública funciona en modo de solo lectura. Puedes explorar las recetas y consultar sus detalles, pero no crear, editar ni eliminar registros. Estas funciones están disponibles al ejecutar el proyecto localmente. La primera visita a la demostración puede tardar cerca de un minuto debido a las condiciones de los servicios gratuitos.
 
-## Capturas
+## Capturas de pantalla
 
-![Catálogo de recetas con búsqueda y filtros](docs/capturas/catalogo.png)
+### Catálogo de recetas
+
+![Catálogo de RecipeHub](docs/capturas/catalogo.png)
+
+### Detalle de una receta
 
 ![Detalle de una receta](docs/capturas/detalle.png)
 
-![Formulario para crear una receta](docs/capturas/formulario.png)
+### Formulario de recetas
 
-<img src="docs/capturas/movil.png" alt="Vista en móvil" width="320">
+![Formulario de RecipeHub](docs/capturas/formulario.png)
 
-![Diálogo de confirmación para eliminar una receta](docs/capturas/confirmacion.png)
+### Confirmación de eliminación
+
+![Confirmación de eliminación](docs/capturas/confirmacion.png)
+
+### Vista móvil
+
+![RecipeHub en dispositivos móviles](docs/capturas/movil.png)
 
 ## Funcionalidades
 
-- **Catálogo** de recetas en tarjetas, con foto, categoría, tiempo y dificultad.
-- **Búsqueda por nombre** (sin distinguir mayúsculas ni tildes) y **filtros** por categoría y dificultad, combinables y con botón para limpiarlos.
-- **Detalle** de cada receta: foto, descripción, tiempo, dificultad, porciones, ingredientes con cantidades y pasos numerados.
-- **Crear, editar y eliminar** recetas. Los formularios validan los datos en el navegador y en el servidor, y los errores del servidor se muestran junto a cada campo. Eliminar pide confirmación.
-- **Estados de carga, error y catálogo vacío** en todas las pantallas.
-- **Modo de solo lectura** para una demostración pública: la API rechaza las escrituras y la interfaz oculta los botones correspondientes.
-- Diseño **responsive** (móvil, tableta y escritorio) y atención a la **accesibilidad**.
+- Catálogo de recetas con imágenes, categorías, tiempo de preparación y dificultad.
+- Búsqueda por nombre, sin distinguir mayúsculas ni tildes.
+- Filtros por categoría y dificultad que se pueden combinar.
+- Vista de detalle con descripción, ingredientes, cantidades, porciones y pasos de preparación.
+- Creación, edición y eliminación de recetas.
+- Validación de formularios tanto en el frontend como en el backend.
+- Mensajes de error y confirmación para las operaciones.
+- Estados de carga, error y catálogo vacío.
+- Diseño adaptable a dispositivos móviles, tabletas y computadores.
+- Modo de solo lectura para proteger los datos de la demostración pública.
 
-## Tecnologías
+## Tecnologías utilizadas
 
-| Capa | Tecnología | Versión de desarrollo |
-|---|---|---|
-| Frontend | Angular (componentes independientes, formularios reactivos, enrutador, `HttpClient`) | 22.2.1 |
-| Lenguaje del frontend | TypeScript | 6.0.3 |
-| Estilos | CSS propio con variables, sin librerías de componentes | |
-| Backend | Node.js con Express (JavaScript con módulos ES) | Node 24.21 · Express 5.2.1 |
-| Base de datos | MySQL, con el driver `mysql2` | MySQL 8.4.11 LTS · mysql2 3.24.5 |
-| Seguridad del servidor | `helmet`, `cors`, `express-rate-limit` | |
-| Pruebas | Vitest (en Angular) y el ejecutor de pruebas incluido en Node | |
-| Despliegue | Firebase Hosting (frontend), Render (API) y Aiven for MySQL (base de datos), todos en planes gratuitos | |
-| Herramientas | Git, GitHub, Visual Studio Code, npm 11 | |
+| Tecnología | Uso |
+|---|---|
+| Angular | Interfaz y navegación del frontend |
+| TypeScript | Desarrollo del frontend |
+| Node.js | Entorno de ejecución del servidor |
+| Express | API REST |
+| MySQL | Almacenamiento de recetas, categorías e ingredientes |
+| mysql2 | Conexión entre Node.js y MySQL |
+| Vitest | Pruebas del frontend |
+| Node.js Test Runner | Pruebas del backend |
+| CSS | Estilos y diseño responsive |
+| Git y GitHub | Control de versiones y repositorio |
+| Firebase Hosting | Publicación del frontend |
+| Render | Despliegue del backend |
+| Aiven for MySQL | Base de datos de la demostración |
 
-## Arquitectura
+## Cómo está organizado
 
-```mermaid
-flowchart LR
-  N["Navegador"] --> F["Frontend: Angular<br/>puerto 4200"]
-  F -->|"API REST (JSON)"| B["Backend: Express<br/>puerto 3000"]
-  B -->|"consultas parametrizadas"| D[("MySQL<br/>puerto 3306")]
-```
+El proyecto está dividido en tres partes: frontend, backend y base de datos.
 
-- El **frontend** es una aplicación de una sola página que consume la API con `HttpClient`.
-- El **backend** valida los datos, aplica los límites de peticiones y ejecuta consultas SQL parametrizadas con un usuario de base de datos de privilegios mínimos.
-- La **base de datos** guarda recetas, categorías e ingredientes en tablas relacionadas.
+- **Frontend:** aplicación Angular que muestra las recetas y se comunica con el servidor mediante peticiones HTTP.
+- **Backend:** API REST desarrollada con Express que valida los datos y ejecuta las operaciones sobre MySQL.
+- **Base de datos:** almacena las recetas, las categorías y los ingredientes mediante tablas relacionadas.
 
-### Estructura de carpetas
+La estructura principal del proyecto es la siguiente:
 
-```
+```text
 RecipeHub/
 ├── backend/
-│   ├── requests/          Ejemplos de peticiones en JSON
+│   ├── requests/
 │   ├── src/
-│   │   ├── middleware/    Errores centralizados y modo de solo lectura
-│   │   ├── routes/        Rutas de categorías y recetas
-│   │   ├── app.js         Aplicación Express (seguridad, CORS, límites, rutas)
-│   │   ├── config.js      Lectura y validación de las variables de entorno
-│   │   ├── db.js          Conexión a MySQL
-│   │   └── ...            Validadores y arranque del servidor
-│   ├── test/              Pruebas del validador de recetas
-│   └── .env.example       Plantilla de configuración (sin secretos)
+│   │   ├── middleware/
+│   │   ├── routes/
+│   │   ├── app.js
+│   │   ├── config.js
+│   │   └── db.js
+│   ├── test/
+│   └── .env.example
 ├── database/
-│   ├── schema.sql         Creación de las tablas
-│   └── seed.sql           Categorías y 8 recetas de ejemplo
-├── docs/capturas/         Capturas de pantalla de este documento
+│   ├── schema.sql
+│   └── seed.sql
+├── docs/
+│   └── capturas/
 ├── frontend/
-│   ├── firebase.json      Configuración de Firebase Hosting
-│   ├── public/images/     Fotos de las recetas
-│   └── src/app/
-│       ├── core/          Modelos, servicio de la API y servicios comunes
-│       ├── features/      Páginas: catálogo, detalle, formulario y 404
-│       ├── layout/        Cabecera, pie y avisos
-│       └── shared/        Componentes y utilidades reutilizables
+│   ├── public/
+│   │   └── images/
+│   └── src/
+│       └── app/
 └── README.md
 ```
 
-## Instalación y puesta en marcha (en Windows)
+## Base de datos
 
-Los comandos son para el **Símbolo del sistema (CMD)**.
+MySQL almacena la información en cuatro tablas principales:
+
+- `categories`: categorías disponibles para clasificar las recetas.
+- `recipes`: título, descripción, imagen, tiempo de preparación, dificultad, porciones e instrucciones.
+- `ingredients`: ingredientes utilizados en las recetas.
+- `recipe_ingredients`: relaciona las recetas con sus ingredientes y guarda las cantidades y unidades correspondientes.
+
+Esta estructura permite relacionar los datos mediante claves foráneas y consultas SQL, sin guardar los ingredientes como un bloque JSON.
+
+Los archivos `database/schema.sql` y `database/seed.sql` contienen, respectivamente, la estructura de las tablas y los datos iniciales de ejemplo.
+
+## API REST
+
+El backend expone una API que devuelve respuestas en formato JSON.
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/api/health` | Comprueba el estado de la API y la base de datos |
+| GET | `/api/categories` | Consulta las categorías |
+| GET | `/api/recipes` | Obtiene las recetas |
+| GET | `/api/recipes/:id` | Consulta una receta con sus ingredientes |
+| POST | `/api/recipes` | Crea una receta |
+| PUT | `/api/recipes/:id` | Actualiza una receta |
+| DELETE | `/api/recipes/:id` | Elimina una receta |
+
+La ruta del catálogo acepta los siguientes parámetros opcionales:
+
+- `search`: búsqueda por nombre.
+- `category`: filtro por categoría.
+- `difficulty`: filtro por dificultad.
+
+Por ejemplo:
+
+```text
+GET /api/recipes?search=pasta&difficulty=easy
+```
+
+La API también valida los datos recibidos, controla los errores y limita las peticiones. En el modo de solo lectura, las operaciones de escritura son rechazadas por el servidor.
+
+## Instalación y ejecución local
+
+Los siguientes pasos están pensados para Windows y el Símbolo del sistema (CMD).
 
 ### Requisitos previos
 
-- [Node.js](https://nodejs.org) 24 LTS (24.15 o superior) y npm.
-- [MySQL Community Server](https://dev.mysql.com/downloads/mysql/) 8.4 LTS (probado con 8.4.11).
-- [Git](https://git-scm.com).
+Instala las siguientes herramientas:
 
-Comprueba las versiones:
+- [Node.js 24 LTS](https://nodejs.org/)
+- [MySQL Community Server 8.4 LTS](https://dev.mysql.com/downloads/mysql/)
+- [Git](https://git-scm.com/)
 
-```
+Comprueba que estén disponibles desde CMD:
+
+```cmd
 node -v
 npm -v
 mysql --version
@@ -112,251 +162,211 @@ git --version
 
 ### 1. Descargar el proyecto
 
-```
+Abre CMD y ejecuta:
+
+```cmd
 git clone https://github.com/juanbecerrap/RecipeHub.git
 cd RecipeHub
 ```
 
-### 2. Preparar la base de datos
+### 2. Crear la base de datos
 
-Abre una sesión de MySQL como administrador (`mysql -u root -p`) y crea la base de datos y un usuario propio para la aplicación. Cambia `CAMBIA_ESTA_CLAVE` por una contraseña de tu elección:
+Inicia sesión en MySQL con un usuario administrador:
+
+```cmd
+mysql -u root -p
+```
+
+Crea la base de datos y un usuario para la aplicación. Sustituye `CAMBIA_ESTA_CLAVE` por una contraseña propia.
 
 ```sql
-CREATE DATABASE recipehub CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-CREATE USER 'recipehub_app'@'localhost' IDENTIFIED BY 'CAMBIA_ESTA_CLAVE';
-GRANT SELECT, INSERT, UPDATE, DELETE ON recipehub.* TO 'recipehub_app'@'localhost';
-EXIT
+CREATE DATABASE recipehub
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_0900_ai_ci;
+
+CREATE USER 'recipehub_app'@'localhost'
+IDENTIFIED BY 'CAMBIA_ESTA_CLAVE';
+
+GRANT SELECT, INSERT, UPDATE, DELETE
+ON recipehub.*
+TO 'recipehub_app'@'localhost';
+
+EXIT;
 ```
 
-Después, desde la carpeta del proyecto, crea las tablas y carga los datos de ejemplo (te pedirá la contraseña de `root`):
+Desde la carpeta raíz del proyecto, importa la estructura y los datos de ejemplo:
 
-```
+```cmd
 mysql -u root -p < database\schema.sql
 mysql -u root -p --default-character-set=utf8mb4 < database\seed.sql
 ```
 
-Para comprobar que las relaciones funcionan:
+Para comprobar que las recetas y sus ingredientes están relacionados, puedes ejecutar:
 
-```
+```cmd
 mysql -u root -p recipehub -e "SELECT r.title, c.name AS categoria, COUNT(ri.ingredient_id) AS ingredientes FROM recipes r JOIN categories c ON c.id = r.category_id LEFT JOIN recipe_ingredients ri ON ri.recipe_id = r.id GROUP BY r.id, r.title, c.name ORDER BY r.id;"
 ```
 
-Debe mostrar las 8 recetas con su categoría y el número de ingredientes.
+La consulta debe mostrar las recetas de ejemplo, sus categorías y el número de ingredientes asociados.
 
-### 3. Arrancar el backend
+### 3. Configurar y ejecutar el backend
 
-```
+En CMD, desde la carpeta raíz del proyecto:
+
+```cmd
 cd backend
 copy .env.example .env
 notepad .env
+```
+
+Edita el archivo `.env` e introduce la contraseña que asignaste a `recipehub_app` en `DB_PASSWORD`. Para trabajar localmente, utiliza los valores de conexión indicados en el apartado de variables de entorno.
+
+Instala las dependencias e inicia el servidor:
+
+```cmd
 npm ci
 npm run dev
 ```
 
-En `.env`, escribe la contraseña de `recipehub_app` en `DB_PASSWORD`. El servidor debe mostrar `API de RecipeHub en http://localhost:3000`. Para comprobarlo, abre <http://localhost:3000/api/health>: debe responder `"status":"ok"` y `"database":"ok"`.
+La API debe quedar disponible en:
 
-### 4. Arrancar el frontend
-
-En otra ventana de CMD:
-
+```text
+http://localhost:3000
 ```
-cd frontend
+
+Para comprobar la conexión, abre esta dirección en el navegador:
+
+[http://localhost:3000/api/health](http://localhost:3000/api/health)
+
+La respuesta debe indicar que la API y la base de datos están disponibles.
+
+### 4. Ejecutar el frontend
+
+Abre otra ventana de CMD y accede a la carpeta del proyecto:
+
+```cmd
+cd RecipeHub\frontend
 npm ci
 npm start
 ```
 
-Abre <http://localhost:4200>.
+Abre la aplicación en:
+
+[http://localhost:4200](http://localhost:4200)
+
+Mantén abiertas las dos ventanas de CMD mientras trabajas: una para el backend y otra para el frontend.
 
 ## Variables de entorno
 
-Se definen en `backend/.env` (hay una plantilla en `backend/.env.example`). El archivo `.env` **no se sube a Git**.
+El backend utiliza el archivo `backend/.env` para configurar la conexión a MySQL y otros parámetros del servidor. La plantilla se encuentra en `backend/.env.example`.
 
-| Variable | Ejemplo | Descripción |
+| Variable | Valor local de ejemplo | Descripción |
 |---|---|---|
 | `NODE_ENV` | `development` | Entorno de ejecución |
 | `PORT` | `3000` | Puerto de la API |
-| `DB_HOST` | `127.0.0.1` | Servidor MySQL (usar `127.0.0.1` y no `localhost`) |
+| `DB_HOST` | `127.0.0.1` | Servidor MySQL |
 | `DB_PORT` | `3306` | Puerto de MySQL |
 | `DB_USER` | `recipehub_app` | Usuario de la aplicación |
-| `DB_PASSWORD` | `cambia_esta_clave` | Contraseña de ese usuario |
+| `DB_PASSWORD` | Tu contraseña | Contraseña del usuario de MySQL |
 | `DB_NAME` | `recipehub` | Nombre de la base de datos |
-| `DB_SSL` | `false` | `true` para bases de datos remotas con TLS (se verifica el certificado del servidor) |
-| `DB_SSL_CA` | *(vacío)* | Certificado CA en formato PEM, para bases de datos remotas como Aiven. Requiere `DB_SSL=true` |
-| `DB_CONNECTION_LIMIT` | `10` | Conexiones máximas del pool |
-| `TRUST_PROXY` | `0` | Número de proxies de confianza delante de la API (`1` en Render), para que el límite de peticiones use la IP real |
-| `CORS_ORIGINS` | `http://localhost:4200` | Orígenes permitidos, separados por comas y sin barra final |
-| `READ_ONLY_DEMO` | `false` | Con `true`, la API rechaza crear, editar y eliminar |
-| `RATE_LIMIT_WINDOW_MS` | `900000` | Ventana de los límites de peticiones (15 minutos) |
-| `RATE_LIMIT_MAX` | `100` | Peticiones por IP en esa ventana |
-| `WRITE_RATE_LIMIT_MAX` | `20` | Escrituras por IP en esa ventana |
+| `DB_SSL` | `false` | Activa TLS para conexiones remotas |
+| `DB_SSL_CA` | Vacío en local | Certificado CA para conexiones remotas que lo requieran |
+| `DB_CONNECTION_LIMIT` | `10` | Máximo de conexiones del pool |
+| `TRUST_PROXY` | `0` | Número de proxies de confianza |
+| `CORS_ORIGINS` | `http://localhost:4200` | Orígenes autorizados |
+| `READ_ONLY_DEMO` | `false` | Desactiva las operaciones de escritura cuando está activado |
+| `RATE_LIMIT_WINDOW_MS` | `900000` | Ventana del límite de peticiones, en milisegundos |
+| `RATE_LIMIT_MAX` | `100` | Máximo de peticiones generales por IP durante la ventana |
+| `WRITE_RATE_LIMIT_MAX` | `20` | Máximo de operaciones de escritura por IP durante la ventana |
 
-La dirección de la API del frontend se define en `frontend/src/environments/`.
-
-## Despliegue en la nube (planes gratuitos)
-
-```mermaid
-flowchart LR
-  N["Navegador"] --> F["Firebase Hosting<br/>frontend Angular"]
-  N -->|"API REST (JSON, HTTPS)"| B["Render<br/>API Express"]
-  B -->|"MySQL con TLS"| D[("Aiven for MySQL")]
-```
-
-| Capa | Servicio | Plan |
-|---|---|---|
-| Frontend | Firebase Hosting | Spark (gratuito, sin tarjeta) |
-| API | Render, región Oregón | Gratuito |
-| Base de datos | Aiven for MySQL 8.4 | Gratuito |
-
-- **Frontend:** `npm run build` en `frontend` y `firebase deploy --only hosting`. `firebase.json` reescribe todas las rutas hacia `index.html` para que las rutas de Angular funcionen al recargar.
-- **API:** servicio web de Render con `backend` como directorio raíz, `npm ci` como comando de compilación y `npm start` como comando de inicio. Las variables de entorno se configuran en el panel de Render (nunca en el repositorio): las de la tabla anterior, con `DB_SSL=true`, `DB_SSL_CA`, `TRUST_PROXY=1`, `READ_ONLY_DEMO=true` y `CORS_ORIGINS` con las direcciones de Firebase.
-- **Base de datos:** el esquema y los datos se cargan con `database/schema.sql` y `database/seed.sql`. La aplicación usa un usuario propio con permisos solo de `SELECT`, `INSERT`, `UPDATE` y `DELETE` sobre `recipehub`, no el administrador del servicio.
-- **Modo de solo lectura:** la demostración pública se ejecuta con `READ_ONLY_DEMO=true`, porque la aplicación no tiene autenticación.
-
-Condiciones de los planes gratuitos:
-- **Render** suspende el servicio tras 15 minutos sin tráfico y tarda cerca de un minuto en despertar.
-- **Aiven** puede apagar el servicio gratuito si no tiene actividad, avisando antes, y se puede volver a encender desde su consola.
-- **Firebase Hosting** incluye 10 GB de transferencia al mes; si se superan sin plan de pago, el sitio se deshabilita hasta el mes siguiente.
-
-## Base de datos
-
-```mermaid
-erDiagram
-  categories ||--o{ recipes : "clasifica"
-  recipes ||--o{ recipe_ingredients : "contiene"
-  ingredients ||--o{ recipe_ingredients : "se usa en"
-
-  categories {
-    int id PK
-    varchar name UK
-    varchar slug UK
-  }
-  recipes {
-    int id PK
-    varchar title
-    text description
-    varchar image_path
-    smallint preparation_time
-    enum difficulty
-    tinyint servings
-    text instructions
-    int category_id FK
-    timestamp created_at
-    timestamp updated_at
-  }
-  ingredients {
-    int id PK
-    varchar name UK
-  }
-  recipe_ingredients {
-    int recipe_id PK, FK
-    int ingredient_id PK, FK
-    decimal quantity
-    varchar unit
-  }
-```
-
-- Las recetas pertenecen a una categoría (clave foránea con `ON DELETE RESTRICT`).
-- Los ingredientes se relacionan con las recetas en una tabla intermedia que guarda la cantidad y la unidad. Al borrar una receta se borran sus líneas (`ON DELETE CASCADE`).
-- Restricciones `CHECK` en tiempo, porciones y cantidades.
-- Los pasos de preparación se guardan en un campo de texto, uno por línea.
-
-## API REST
-
-Todas las respuestas son JSON. Las correctas llevan `{ "ok": true, "data": ... }` y las erróneas `{ "ok": false, "error": { "message": "...", "details": [...] } }`. Los datos de ejemplo de cada operación están en `backend/requests/`.
-
-| Método | Ruta | Descripción | Respuestas |
-|---|---|---|---|
-| GET | `/api/health` | Estado de la API y de la base de datos | 200, 503 |
-| GET | `/api/categories` | Lista de categorías | 200 |
-| GET | `/api/recipes?search=&category=&difficulty=` | Lista de recetas con filtros opcionales | 200, 400 |
-| GET | `/api/recipes/:id` | Receta completa con ingredientes | 200, 400, 404 |
-| POST | `/api/recipes` | Crea una receta | 201, 400, 422 |
-| PUT | `/api/recipes/:id` | Reemplaza una receta | 200, 400, 404, 422 |
-| DELETE | `/api/recipes/:id` | Elimina una receta | 204, 400, 404 |
-
-Otras respuestas posibles: `403` (modo de solo lectura), `413` (cuerpo demasiado grande), `429` (demasiadas peticiones) y `500`. Los errores de validación (`422`) indican el campo afectado, por ejemplo `ingredients[0].quantity`.
-
-Ejemplo de cuerpo para crear una receta:
-
-```json
-{
-  "title": "Tostadas de aguacate",
-  "description": "Desayuno rápido con aguacate machacado sobre pan tostado.",
-  "imagePath": "guacamole.jpg",
-  "preparationTime": 10,
-  "difficulty": "easy",
-  "servings": 2,
-  "categoryId": 1,
-  "instructions": ["Tuesta el pan.", "Aplasta el aguacate con sal.", "Unta y sirve."],
-  "ingredients": [
-    { "name": "Pan de molde", "quantity": 4, "unit": "rebanadas" },
-    { "name": "Aguacates", "quantity": 1, "unit": "" }
-  ]
-}
-```
+No compartas tu archivo `.env` ni subas contraseñas o certificados privados al repositorio. La dirección de la API utilizada por el frontend se configura en `frontend/src/environments/`.
 
 ## Pruebas
 
-```
+Para ejecutar las pruebas del backend:
+
+```cmd
 cd backend
 npm test
+```
 
-cd ..\frontend
+Para ejecutar las pruebas del frontend:
+
+```cmd
+cd frontend
 npm test -- --no-watch
 ```
 
-Hay 12 pruebas en el backend (validación de recetas) y 108 en el frontend (servicio de la API, validadores, componentes, formularios, rutas, diálogo de confirmación y modo de solo lectura).
+La versión documentada del proyecto cuenta con pruebas para la validación de recetas en el backend y para los servicios, validadores, componentes, formularios, rutas y modo de solo lectura del frontend.
+
+## Despliegue
+
+La demostración pública está distribuida entre tres servicios:
+
+| Parte | Servicio |
+|---|---|
+| Frontend Angular | [Firebase Hosting](https://firebase.google.com/docs/hosting) |
+| API REST | [Render](https://render.com/) |
+| Base de datos MySQL | [Aiven](https://aiven.io/) |
+
+Se eligieron servicios con opciones gratuitas para publicar el proyecto sin incorporar un sistema de pagos propio.
+
+La demostración pública tiene algunas limitaciones:
+
+- Render puede suspender la API después de un periodo sin actividad. La primera petición posterior puede tardar en responder.
+- La base de datos gratuita de Aiven puede tener restricciones de disponibilidad y uso.
+- Firebase Hosting tiene límites de uso asociados a su plan gratuito.
+- Las condiciones de los planes pueden cambiar, por lo que conviene revisarlas antes de desplegar una nueva instancia.
+
+Para desplegar una copia propia, hay que configurar las variables de entorno en cada servicio, cargar el esquema y los datos iniciales en MySQL, configurar los orígenes permitidos en CORS y actualizar la dirección de la API del frontend.
+
+En la demostración pública se utiliza `READ_ONLY_DEMO=true` para impedir que visitantes sin autenticación modifiquen los datos.
 
 ## Seguridad
 
-- Consultas SQL **parametrizadas** y validación de todos los datos de entrada en el servidor.
-- Usuario de base de datos con **privilegios mínimos** (solo lectura y escritura de datos, sin permisos para modificar tablas). En local, MySQL está limitado a `127.0.0.1`; en la nube, la conexión va cifrada con TLS y verificando el certificado del servidor.
-- Cabeceras de seguridad con `helmet`, **CORS con lista de orígenes permitidos** y tamaño máximo del cuerpo de las peticiones.
-- **Límite de peticiones** por IP, más estricto para las escrituras.
-- Manejo de errores centralizado que no revela detalles internos.
-- Sin secretos en el repositorio: la configuración va en `.env`, que está ignorado por Git.
-- Angular escapa por defecto el texto que se muestra, y el código no usa `innerHTML`.
-- Las dependencias se revisaron con `npm audit` (sin vulnerabilidades conocidas al preparar esta versión).
+Durante el desarrollo se tuvieron en cuenta las siguientes medidas:
 
-> **Aviso:** esta aplicación **no tiene autenticación**. Si el modo de escritura estuviera expuesto en internet, cualquiera podría crear, modificar o borrar recetas, o llenar la base de datos. Por eso el modo `READ_ONLY_DEMO=true` está pensado para cualquier demostración pública, y el CRUD completo se usa solo en local.
+- Validación de los datos recibidos en el servidor.
+- Consultas SQL parametrizadas para reducir el riesgo de inyección SQL.
+- Usuario de MySQL con permisos limitados a las operaciones necesarias.
+- Configuración de CORS para aceptar peticiones únicamente desde los orígenes autorizados.
+- Cabeceras de seguridad mediante Helmet.
+- Límites de peticiones para reducir el uso abusivo de la API.
+- Manejo centralizado de errores.
+- Variables sensibles fuera del repositorio.
+- Modo de solo lectura para la demostración pública.
 
-## Accesibilidad
-
-- Estructura semántica, enlace para **saltar al contenido** y títulos jerárquicos.
-- Etiquetas visibles en todos los campos, errores enlazados a su campo y foco que se mueve al primer error al enviar.
-- Foco visible y navegación completa **con teclado**; diálogo de confirmación nativo (`<dialog>`) que atrapa el foco y se cierra con Escape.
-- Colores elegidos con una relación de contraste de al menos 4,5:1 para el texto, calculada durante el diseño.
-- Respeta la preferencia de menos movimiento del sistema.
-- Revisado manualmente con teclado y en distintos tamaños de pantalla, y con una puntuación de 100 en la categoría de accesibilidad de Lighthouse en el catálogo, el detalle y el formulario.
-
-## Decisiones de diseño
-
-- **JavaScript con módulos ES en el backend**, para mantener el servidor sencillo; TypeScript se usa en Angular.
-- **Ingredientes en tablas relacionales** (no en JSON) para practicar claves foráneas, relaciones muchos a muchos y `JOIN`.
-- **Fotos de una lista cerrada**, sin subida de archivos, para no añadir dependencias ni almacenamiento.
-- **Modo de solo lectura** en lugar de autenticación, porque el alcance excluye usuarios y roles.
-- **Dependencias mínimas** y versiones con una antigüedad mínima de dos semanas al instalarlas.
+RecipeHub no tiene autenticación ni cuentas de usuario. Por ese motivo, no se habilitan las operaciones de escritura en la versión pública. Para usar el CRUD completo, se recomienda ejecutar la aplicación localmente.
 
 ## Limitaciones conocidas
 
-- Sin autenticación ni cuentas de usuario (ver el aviso de seguridad).
-- Sin subida de imágenes: las fotos nuevas se añaden a mano a `frontend/public/images` y a la lista de `frontend/src/app/core/photos.ts`.
-- El orden de los ingredientes es alfabético y los pasos no se pueden reordenar en el formulario.
-- Sin paginación del catálogo ni filtros en la dirección de la página.
-- Los ingredientes que dejan de usarse se quedan en la base de datos.
-- El backend solo tiene pruebas automáticas del validador; el resto de la API se comprobó con peticiones manuales.
-- La demostración usa planes gratuitos: el primer acceso tras un rato de inactividad puede tardar cerca de un minuto, y la base de datos puede apagarse por falta de uso.
-- La dirección de la API de producción está fijada en `frontend/src/environments/environment.ts`; quien despliegue su propia copia debe cambiarla.
+- No incluye autenticación ni roles.
+- No permite subir imágenes desde los formularios; las nuevas imágenes deben añadirse manualmente al proyecto.
+- No tiene paginación en el catálogo.
+- Los pasos de preparación no se pueden reordenar desde el formulario.
+- Los ingredientes que dejan de utilizarse pueden permanecer en la base de datos.
+- Las pruebas del backend se centran en la validación de recetas; el resto de la API requiere pruebas adicionales.
+- La disponibilidad de la demostración depende de los servicios gratuitos utilizados.
 
-## Mejoras futuras
+## Posibles mejoras
 
-Autenticación y roles, paginación, filtros en la dirección, reordenar pasos, subida de fotos, pruebas de integración del backend y limpieza de ingredientes sin uso.
+Algunas mejoras que podrían incorporarse en futuras versiones son:
+
+- Añadir paginación al catálogo.
+- Permitir ordenar los pasos de preparación.
+- Incorporar carga de imágenes.
+- Añadir pruebas de integración para la API.
+- Eliminar ingredientes que ya no estén asociados a ninguna receta.
+- Implementar autenticación y permisos si el proyecto evoluciona hacia una aplicación multiusuario.
 
 ## Créditos
 
-- Las **fotografías de las recetas son imágenes generadas con inteligencia artificial** por el autor.
-- Iconos y marca dibujados a mano en SVG.
+Las fotografías de las recetas y los recursos gráficos utilizados en la aplicación fueron preparados para este proyecto.
 
 ## Autor
 
-Juan Angel
+**Juan Angel Becerra Padilla**
+
+- [GitHub](https://github.com/juanbecerrap)
+- [LinkedIn](https://www.linkedin.com/in/juanbecerrap/)
+
