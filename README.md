@@ -8,6 +8,8 @@ RecipeHub es una aplicación web para explorar y gestionar recetas de cocina. Pe
 
 **Código fuente:** <https://github.com/juanbecerrap/RecipeHub>
 
+> **Sobre la demostración:** en la versión en línea están **desactivadas a propósito las funciones de crear, editar y eliminar recetas**. La aplicación no tiene autenticación, y dejarlas abiertas permitiría que cualquiera modificara o borrara los datos. En la demo se puede explorar el catálogo, buscar, filtrar y ver el detalle de cada receta. El CRUD completo funciona al ejecutar el proyecto en local (consulta las [capturas](#capturas) del formulario y de la confirmación de borrado).
+>
 > La demostración usa planes gratuitos y se "duerme" cuando nadie la visita: la primera carga puede tardar cerca de un minuto en despertar. Más detalles en [Despliegue](#despliegue-en-la-nube-planes-gratuitos). Para probar el CRUD completo, ejecuta el proyecto en local siguiendo las instrucciones de [Instalación](#instalación-y-puesta-en-marcha-en-windows).
 
 ## Capturas
