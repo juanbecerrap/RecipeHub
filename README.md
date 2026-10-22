@@ -4,7 +4,11 @@
 
 RecipeHub es una aplicación web para explorar y gestionar recetas de cocina. Permite consultar un catálogo de recetas, buscar y filtrar, ver los ingredientes y los pasos de preparación, y crear, editar y eliminar recetas. Es el quinto y último proyecto de mi portafolio como desarrollador web, y lo he usado para practicar un stack distinto del de los anteriores: **Angular, Node.js, Express y MySQL**.
 
-> Por ahora no hay una demostración publicada en línea. El proyecto se ejecuta en local siguiendo las instrucciones de [Instalación](#instalación-y-puesta-en-marcha-en-windows).
+**Demostración en línea (solo lectura):** <https://recipehub-ddb79.web.app>
+
+**Código fuente:** <https://github.com/juanbecerrap/RecipeHub>
+
+> La demostración usa planes gratuitos y se "duerme" cuando nadie la visita: la primera carga puede tardar cerca de un minuto en despertar. Más detalles en [Despliegue](#despliegue-en-la-nube-planes-gratuitos). Para probar el CRUD completo, ejecuta el proyecto en local siguiendo las instrucciones de [Instalación](#instalación-y-puesta-en-marcha-en-windows).
 
 ## Capturas
 
@@ -39,6 +43,7 @@ RecipeHub es una aplicación web para explorar y gestionar recetas de cocina. Pe
 | Base de datos | MySQL, con el driver `mysql2` | MySQL 8.4.11 LTS · mysql2 3.24.5 |
 | Seguridad del servidor | `helmet`, `cors`, `express-rate-limit` | |
 | Pruebas | Vitest (en Angular) y el ejecutor de pruebas incluido en Node | |
+| Despliegue | Firebase Hosting (frontend), Render (API) y Aiven for MySQL (base de datos), todos en planes gratuitos | |
 | Herramientas | Git, GitHub, Visual Studio Code, npm 11 | |
 
 ## Arquitectura
@@ -74,6 +79,7 @@ RecipeHub/
 │   └── seed.sql           Categorías y 8 recetas de ejemplo
 ├── docs/capturas/         Capturas de pantalla de este documento
 ├── frontend/
+│   ├── firebase.json      Configuración de Firebase Hosting
 │   ├── public/images/     Fotos de las recetas
 │   └── src/app/
 │       ├── core/          Modelos, servicio de la API y servicios comunes
@@ -172,8 +178,10 @@ Se definen en `backend/.env` (hay una plantilla en `backend/.env.example`). El a
 | `DB_USER` | `recipehub_app` | Usuario de la aplicación |
 | `DB_PASSWORD` | `cambia_esta_clave` | Contraseña de ese usuario |
 | `DB_NAME` | `recipehub` | Nombre de la base de datos |
-| `DB_SSL` | `false` | `true` para bases de datos remotas con TLS |
+| `DB_SSL` | `false` | `true` para bases de datos remotas con TLS (se verifica el certificado del servidor) |
+| `DB_SSL_CA` | *(vacío)* | Certificado CA en formato PEM, para bases de datos remotas como Aiven. Requiere `DB_SSL=true` |
 | `DB_CONNECTION_LIMIT` | `10` | Conexiones máximas del pool |
+| `TRUST_PROXY` | `0` | Número de proxies de confianza delante de la API (`1` en Render), para que el límite de peticiones use la IP real |
 | `CORS_ORIGINS` | `http://localhost:4200` | Orígenes permitidos, separados por comas y sin barra final |
 | `READ_ONLY_DEMO` | `false` | Con `true`, la API rechaza crear, editar y eliminar |
 | `RATE_LIMIT_WINDOW_MS` | `900000` | Ventana de los límites de peticiones (15 minutos) |
@@ -181,6 +189,31 @@ Se definen en `backend/.env` (hay una plantilla en `backend/.env.example`). El a
 | `WRITE_RATE_LIMIT_MAX` | `20` | Escrituras por IP en esa ventana |
 
 La dirección de la API del frontend se define en `frontend/src/environments/`.
+
+## Despliegue en la nube (planes gratuitos)
+
+```mermaid
+flowchart LR
+  N["Navegador"] --> F["Firebase Hosting<br/>frontend Angular"]
+  N -->|"API REST (JSON, HTTPS)"| B["Render<br/>API Express"]
+  B -->|"MySQL con TLS"| D[("Aiven for MySQL")]
+```
+
+| Capa | Servicio | Plan |
+|---|---|---|
+| Frontend | Firebase Hosting | Spark (gratuito, sin tarjeta) |
+| API | Render, región Oregón | Gratuito |
+| Base de datos | Aiven for MySQL 8.4 | Gratuito |
+
+- **Frontend:** `npm run build` en `frontend` y `firebase deploy --only hosting`. `firebase.json` reescribe todas las rutas hacia `index.html` para que las rutas de Angular funcionen al recargar.
+- **API:** servicio web de Render con `backend` como directorio raíz, `npm ci` como comando de compilación y `npm start` como comando de inicio. Las variables de entorno se configuran en el panel de Render (nunca en el repositorio): las de la tabla anterior, con `DB_SSL=true`, `DB_SSL_CA`, `TRUST_PROXY=1`, `READ_ONLY_DEMO=true` y `CORS_ORIGINS` con las direcciones de Firebase.
+- **Base de datos:** el esquema y los datos se cargan con `database/schema.sql` y `database/seed.sql`. La aplicación usa un usuario propio con permisos solo de `SELECT`, `INSERT`, `UPDATE` y `DELETE` sobre `recipehub`, no el administrador del servicio.
+- **Modo de solo lectura:** la demostración pública se ejecuta con `READ_ONLY_DEMO=true`, porque la aplicación no tiene autenticación.
+
+Condiciones de los planes gratuitos:
+- **Render** suspende el servicio tras 15 minutos sin tráfico y tarda cerca de un minuto en despertar.
+- **Aiven** puede apagar el servicio gratuito si no tiene actividad, avisando antes, y se puede volver a encender desde su consola.
+- **Firebase Hosting** incluye 10 GB de transferencia al mes; si se superan sin plan de pago, el sitio se deshabilita hasta el mes siguiente.
 
 ## Base de datos
 
@@ -275,7 +308,7 @@ Hay 12 pruebas en el backend (validación de recetas) y 108 en el frontend (serv
 ## Seguridad
 
 - Consultas SQL **parametrizadas** y validación de todos los datos de entrada en el servidor.
-- Usuario de base de datos con **privilegios mínimos** (solo lectura y escritura de datos, sin permisos para modificar tablas), y MySQL limitado a `127.0.0.1`.
+- Usuario de base de datos con **privilegios mínimos** (solo lectura y escritura de datos, sin permisos para modificar tablas). En local, MySQL está limitado a `127.0.0.1`; en la nube, la conexión va cifrada con TLS y verificando el certificado del servidor.
 - Cabeceras de seguridad con `helmet`, **CORS con lista de orígenes permitidos** y tamaño máximo del cuerpo de las peticiones.
 - **Límite de peticiones** por IP, más estricto para las escrituras.
 - Manejo de errores centralizado que no revela detalles internos.
@@ -310,7 +343,8 @@ Hay 12 pruebas en el backend (validación de recetas) y 108 en el frontend (serv
 - Sin paginación del catálogo ni filtros en la dirección de la página.
 - Los ingredientes que dejan de usarse se quedan en la base de datos.
 - El backend solo tiene pruebas automáticas del validador; el resto de la API se comprobó con peticiones manuales.
-- La dirección de la API de producción (`frontend/src/environments/environment.ts`) es un valor provisional.
+- La demostración usa planes gratuitos: el primer acceso tras un rato de inactividad puede tardar cerca de un minuto, y la base de datos puede apagarse por falta de uso.
+- La dirección de la API de producción está fijada en `frontend/src/environments/environment.ts`; quien despliegue su propia copia debe cambiarla.
 
 ## Mejoras futuras
 
