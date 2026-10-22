@@ -19,3 +19,5 @@ npm-debug.log*
 # Archivos del sistema
 Thumbs.db
 desktop.ini
+
+.firebase/
